@@ -1,0 +1,22 @@
+# This file is machine-generated - editing it directly is not advised
+
+[[BinaryProvider]]
+deps = ["Libdl", "Logging", "SHA"]
+git-tree-sha1 = "ecdec412a9abc8db54c0efc5548c64dfce072058"
+uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
+version = "0.5.10"
+
+[[ERFA]]
+deps = ["BinaryProvider", "Libdl"]
+git-tree-sha1 = "1f33fef12e4ac7fb0f6852f65d46024f0d937b80"
+uuid = "17511681-8477-586a-8d98-4cfd5a1f2ec3"
+version = "0.6.3"
+
+[[Libdl]]
+uuid = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+
+[[Logging]]
+uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
+
+[[SHA]]
+uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
