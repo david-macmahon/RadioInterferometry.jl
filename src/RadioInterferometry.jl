@@ -56,11 +56,8 @@ function xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,2}
 end
 
 """
-    xyz2uvw(xyz::Array{<:Real,1},
+    xyz2uvw(xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
             ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,1}
-
-    xyz2uvw(xyz::Array{<:Real,2},
-            ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,2}
 
     xyz2uvw(x::Real, y::Real, z::Real,
             ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,1}
@@ -70,13 +67,8 @@ direction of hour angle `ha_rad` (west positive) and `dec_rad` from longitude
 `lon_rad`, all in radians, and permuted to a (U,V,W) frame where U is east, V
 is north, and W is in the direction of projection.
 """
-function xyz2uvw(xyz::Array{<:Real,1},
+function xyz2uvw(xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
                  ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,1}
-  xyz2uvw(ha_rad, dec_rad, lon_rad) * xyz
-end
-
-function xyz2uvw(xyz::Array{<:Real,2},
-                 ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,2}
   xyz2uvw(ha_rad, dec_rad, lon_rad) * xyz
 end
 
