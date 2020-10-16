@@ -5,6 +5,8 @@ functionality.
 module RadioInterferometry
 
 export I3
+export dms2d
+export hms2h
 export xyz2uvw
 
 using ERFA
@@ -39,6 +41,25 @@ CNSPM = 1e9 / CMPNS
 Speed of light in a vacuum (C) in seconds/meter
 """
 CSPM  = 1 / CMPS
+
+"""
+    dms2d(dms::AbstractString)::Float64
+
+Parse `dms` from "dd:mm:ss.s" format to Float64 degrees.
+"""
+function dms2d(dms::AbstractString)::Float64
+  d, m, s = map(x->parse(Float64,x), split(dms * ":0:0", ":"))
+  sign = 1
+  if '-' in dms
+    sign = -1
+    d = -d
+  end
+  d += m/60 + s/3600
+  sign * d
+end
+
+dms2d(dms::Real)::Float64 = Float64(dms)
+hms2h = dms2d
 
 
 """
