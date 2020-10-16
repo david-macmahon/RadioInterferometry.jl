@@ -10,6 +10,7 @@ export xyz2uvw
 using ERFA
 import ERFA.DD2R
 import ERFA.DR2D
+import ERFA.CMPS
 
 using Geodesy
 
@@ -24,6 +25,20 @@ I3 = Float64[1 0 0
 ERFA.rx(phi::Real) = ERFA.rx(phi, I3)
 ERFA.ry(phi::Real) = ERFA.ry(phi, I3)
 ERFA.rz(phi::Real) = ERFA.rz(phi, I3)
+
+# Some additional ways of expressing speed of light
+"""
+Speed of light in a vacuum (C) in meters/nanosecond
+"""
+CMPNS = CMPS / 1e9
+"""
+Speed of light in a vacuum (C) in nanoseconds/meter
+"""
+CNSPM = 1e9 / CMPNS
+"""
+Speed of light in a vacuum (C) in seconds/meter
+"""
+CSPM  = 1 / CMPS
 
 
 """
