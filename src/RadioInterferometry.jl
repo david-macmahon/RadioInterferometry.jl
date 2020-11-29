@@ -5,7 +5,16 @@ functionality.
 module RadioInterferometry
 
 export dms2d
+export @dms_str
 export hms2h
+export @hms_str
+
+export d2dms
+export d2dmsstr
+
+export h2hms
+export h2hmsstr
+
 export xyz2uvw
 export enu2uvw
 
@@ -44,8 +53,10 @@ CSPM  = 1 / CMPS
 
 """
     dms2d(dms::AbstractString)::Float64
+    dms2d(d::Real)::Float64
 
-Parse `dms` from "dd:mm:ss.s" format to Float64 degrees.
+Parse `dms::AbstractString` from "dd:mm:ss.s" format to `Float64` degrees or
+convert `d::Real` to `Float64`.
 """
 function dms2d(dms::AbstractString)::Float64
   d, m, s = map(x->parse(Float64,x), split(dms * ":0:0", ":"))
@@ -58,9 +69,128 @@ function dms2d(dms::AbstractString)::Float64
   sign * d
 end
 
-dms2d(dms::Real)::Float64 = Float64(dms)
+dms2d(d::Real)::Float64 = Float64(d)
+
+"""
+    @dms_str("dd:mm:ss.s")::Float64
+    dms"dd:mm:ss.s"
+
+Convert sexagesimal degrees:minutes:seconds string to decimal degrees.
+"""
+macro dms_str(s)
+  dms2d(s)
+end
+
+"""
+    hms2h(hms::AbstractString)::Float64
+    hms2h(h::Real)::Float64
+
+Parse `hms::AbstractString` from "hh:mm:ss.s" format to Float64 hours or
+convert `h::Real` to Float64.
+"""
 hms2h = dms2d
 
+"""
+    @hms_str("hh:mm:ss.s")
+    hms"hh:mm:ss.s"
+
+Convert sexagesimal hours:minutes:seconds string to decimal hours.
+"""
+macro hms_str(s)
+  hms2h(s)
+end
+
+"""
+    d2dms(d::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Rational{Int64}}
+
+Convert degrees `d` into `(sign, degrees, arcminutes, arcseconds, fraction)`
+using `ERFA.a2af()`.
+
+`sign` is `-1` if `d < 0`, otherwise `+1`.  `ndp` is the number of decimal
+places of precision.  For `ndp > 0`, the denominator of `fraction` will be
+`10^ndp`.  For `ndp <= 0`, `fraction` will be `0//1` (i.e. zero), and the
+returned resolution of `degrees`, `arcminutes`, `arcseconds` will be limited
+accordingly.  For example, `ndp = -3` will return results rounded to the
+nearest multiple of 10 arcminutes.  See `ERFA.a2af` for more details.
+"""
+function d2dms(d::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
+  ndp <= 9 || @warn "fraction may be inaccurate when ndp ($ndp) > 9"
+  sign, deg, min, sec, frac = ERFA.a2af(ndp, d*ERFA.DD2R)
+  (Int32(sign == '-' ? -1 : +1), deg, min, sec, ndp > 0 ? frac//10^ndp : 0//1)
+end
+
+"""
+    d2dmsstr(d::Real, ndp::Integer=3; <kwargs>)::String
+
+Return a sexagesimal string representing `d` degrees, rounded to the precision
+specified by `ndp`.
+
+# Keyword arguments
+- `posind::AbstractString="+"`: string to indicate nonnegative values.
+- `degwidth::Integer=0`: minimum width of the degree field.
+- `degpad::Union{AbstractChar,AbstractString}='0'`: padding for degree field.
+
+See also: [`d2dms`](@ref)
+"""
+function d2dmsstr(d::Real, ndp::Integer=3;
+                  posind::AbstractString="+",
+                  degwidth::Integer=0,
+                  degpad::Union{AbstractChar,AbstractString}='0'
+                 )::String
+  sign, deg, min, sec, frac = d2dms(d,ndp)
+  signstr = sign < 0 ? "-" : posind
+  degstr = lpad(deg, degwidth, degpad)
+  minstr = lpad(min, 2, '0')
+  secstr = lpad(sec, 2, '0')
+  fracstr = ndp > 0 ? ".$(lpad(Int(round(frac*10^ndp)), ndp, '0'))" : ""
+  "$(signstr)$(degstr):$(minstr):$(secstr)$(fracstr)"
+end
+
+"""
+    h2hms(h::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Rational{Int64}}
+
+Convert hours `h` into `(sign, hours, minutes, seconds, fraction)`
+using `ERFA.a2tf()`.
+
+`sign` is `-1` if `d < 0`, otherwise `+1`.  `ndp` is the number of decimal
+places of precision.  For `ndp > 0`, the denominator of `fraction` will be
+`10^ndp`.  For `ndp <= 0`, `fraction` will be `0//1` (i.e. zero), and the
+returned resolution of `degrees`, `minutes`, `seconds` will be limited
+accordingly.  For example, `ndp = -3` will return results rounded to the
+nearest multiple of 10 minutes.  See `ERFA.a2tf` for more details.
+"""
+function h2hms(h::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
+  ndp <= 9 || @warn "fraction may be inaccurate when ndp ($ndp) > 9"
+  sign, deg, min, sec, frac = ERFA.a2tf(ndp, h*15*ERFA.DD2R)
+  (Int32(sign == '-' ? -1 : +1), deg, min, sec, ndp > 0 ? frac//10^ndp : 0//1)
+end
+
+"""
+    h2hmsstr(h::Real, ndp::Integer=3; <kwargs>)::String
+
+Return a sexagesimal string representing `h` hours, rounded to the precision
+specified by `ndp`.
+
+# Keyword arguments
+- `posind::AbstractString=""`: string to indicate nonnegative values.
+- `hourwidth::Integer=0`: minimum width of the hour field.
+- `hourpad::Union{AbstractChar,AbstractString}='0'`: padding for hour field.
+
+See also: [`hhdms`](@ref)
+"""
+function h2hmsstr(h::Real, ndp::Integer=3;
+                  posind::AbstractString="",
+                  hourwidth::Integer=0,
+                  hourpad::Union{AbstractChar,AbstractString}='0'
+                 )::String
+  sign, hour, min, sec, frac = h2hms(h,ndp)
+  signstr = sign < 0 ? "-" : posind
+  hourstr = lpad(hour, hourwidth, hourpad)
+  minstr = lpad(min, 2, '0')
+  secstr = lpad(sec, 2, '0')
+  fracstr = ndp > 0 ? ".$(lpad(Int(round(frac*10^ndp)), ndp, '0'))" : ""
+  "$(signstr)$(hourstr):$(minstr):$(secstr)$(fracstr)"
+end
 
 """
     xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,2}
