@@ -8,13 +8,14 @@ export I3
 export dms2d
 export hms2h
 export xyz2uvw
+export enu2uvw
 
 using ERFA
 import ERFA.DD2R
 import ERFA.DR2D
 import ERFA.CMPS
 
-import Geodesy: ECEF
+import Geodesy: ECEF, ENU
 
 """
 `I3` is a 3x3 identity matrix.
@@ -108,6 +109,53 @@ end
 function xyz2uvw(x::Real, y::Real, z::Real,
                  ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,1}
   xyz2uvw(ha_rad, dec_rad, lon_rad) * [x, y, z]
+end
+
+"""
+    enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,2}
+
+Return transformation (rotation and permutation) matrix to convert coordinates
+in topocentric (E,N,Up) frame to a (U,V,W) projection with W pointing to the
+hour angle `ha_rad` (west positive) and declination `dec_rad` as seen from
+latitude `lat_rad` (all in radians).
+
+This works by rotating the ENU frame anticlockwise about the E (i.e. first)
+axis by `lat_rad`, producing a (E,Z,X') frame, then rotating that frame
+anticlockwise about the Z (i.e. second) axis by `-ha_rad`, producing a
+(U,Z,X") frame, then rotating anticlockwise about the U (i.e. first) axis by
+`-dec_rad`, producing the (U,V,W) frame where U is east, V is north, and W is
+in the direction of projection.
+
+Left multiplying a topocentric (E,N,Up) coordinate vector by the returned
+rotation matrix will result in the (U,V,W) projection of the (E,N,U)
+coordinates in the specified direction at the specified latitude:
+
+    uvw = enu2uvw(ha, dec, lat) * enu
+"""
+function enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,2}
+   ERFA.rx(-dec_rad,ERFA.ry(-ha_rad,ERFA.rx(lat_rad)))
+end
+
+"""
+    enu2uvw(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+            ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,1}
+
+    enu2uvw(e::Real, n::Real, u::Real,
+            ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,1}
+
+Return the coordinataes of point(s) `enu` (or [e,n,u]) projected in the
+direction of hour angle `ha_rad` (west positive) and `dec_rad` from latitude
+`lat_rad`, all in radians, and permuted to a (U,V,W) frame where U is east, V
+is north, and W is in the direction of projection.
+"""
+function enu2uvw(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+                 ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,1}
+  enu2uvw(ha_rad, dec_rad, lat_rad) * enu
+end
+
+function enu2uvw(e::Real, n::Real, u::Real,
+                 ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,1}
+  enu2uvw(ha_rad, dec_rad, lat_rad) * [e, n, u]
 end
 
 end # module
