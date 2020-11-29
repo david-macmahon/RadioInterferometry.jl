@@ -28,7 +28,7 @@ array_center_xyz = [-2559454.08, 5095372.14, -2849057.18]
 # Antenna location in topocentric east/north/up (m)
 antenna_location_enu = [-101.94, 156.41, 1.24]
 
-### Expected results
+### Expected results (from pyuvdata test case)
 
 u_exp = -97.122828
 v_exp = 50.388281
@@ -37,7 +37,7 @@ w_exp = -151.27976
 ### Intermediate transforms/calculations/data (NOT from pyuvdata)
 
 # Create ECEF and LLA objects from array_center_xyz (using WGS84 ellipsoid)
-ref_ecef = ECEF(array_center_xyz)
+ref_ecef = ECEF(array_center_xyz...)
 ref_lla = LLA(ref_ecef, wgs84)
 @show ref_ecef
 @show ref_lla
@@ -54,9 +54,9 @@ dut1 = getΔUT1(ERFA.DJM0 + mjd)
 xp, yp = polarmotion(ERFA.DJM0 + mjd) .* ERFA.DMAS2R
 
 # Compute various "observed" coordinates when viewing ra/dec (CIRS?) from array
-# center at given MJD. aob is azimuth, zof is zenitt distance, hob is hour
-# angle, dob is declination, rob is right ascension.
-#aob, zob, hob, dob, rob = ERFA.atio13(ra_deg*ERFA.DD2R, dec_deg*ERFA.DD2R,
+# center at given MJD. aob is azimuth, zob is zenith distance, hob is hour
+# angle, dob is declination, rob is right ascension.  The "ob" in the variable
+# names of the returned paramters is an ERFA convention that means "observed".
 aob, zob, hob, dob, rob = ERFA.atco13(ra_deg*ERFA.DD2R, dec_deg*ERFA.DD2R, 0, 0, 0, 0,
                                       ERFA.DJM0, mjd, dut1,
                                       ref_lla.lon*ERFA.DD2R,
@@ -74,29 +74,19 @@ el_deg = 90 - zob * ERFA.DR2D
 # Baseline vector in ECEF frame
 bl_ecef = ant_ecef - ref_ecef
 
-# Rotate baseline ECEF XYZ frame by `rob` around the Z axis to get X′Y′Z′ frame
-# Rotate baseline X'Y'Z' frame by `dob` around the Y axis to get WUV frame
-# Then permute from WUV to UVW
-ecef2uvw_halon = [0 1 0
-                  0 0 1
-                  1 0 0] * ry(-dob) * rz(-hob+ref_lla.lon*ERFA.DD2R)
-
-ecef2uvw_rob   = [0 1 0
-                  0 0 1
-                  1 0 0] * ry(-dob) * rz(+rob)
-
 uvw_exp = [u_exp, v_exp, w_exp]
-uvw_halon = ecef2uvw_halon * bl_ecef
-uvw_rob = ecef2uvw_rob * bl_ecef
+uvw_xyz = xyz2uvw(bl_ecef, hob, dob, ref_lla.lon*ERFA.DD2R)
+uvw_enu = enu2uvw(ant_enu, hob, dob, ref_lla.lat*ERFA.DD2R)
 
-println("using observed hour angle and declination")
-uvw_diff(uvw_halon, uvw_exp)
-println()
-println("using observed right ascension and declination")
-uvw_diff(uvw_rob, uvw_exp)
+println("calculated by package using XZY and observed hour angle and declination")
+uvw_diff(uvw_xyz, uvw_exp)
 println()
 
-[uvw_halon, uvw_rob]
+println("calculated by package using ENU and observed hour angle and declination")
+uvw_diff(uvw_enu, uvw_exp)
+println()
+
+uvw_xyz
 end
 
 function uvw_diff(uvw_calc, uvw_exp; show=true)
