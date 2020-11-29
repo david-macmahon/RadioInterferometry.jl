@@ -88,7 +88,7 @@ specified longitude:
 function xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,2}
   [0 1 0
    0 0 1
-   1 0 0] * ERFA.ry(-dec_rad,ERFA.rz(lon_rad-h_rad))
+   1 0 0] * ERFA.ry(-dec_rad,ERFA.rz(lon_rad-ha_rad))
 end
 
 """
