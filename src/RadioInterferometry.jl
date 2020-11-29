@@ -74,16 +74,13 @@ This works by rotating the XYZ frame anticlockwise about the Z (i.e. third)
 axis by `lon_rad-ha_rad`, producing a (X',U,Z) frame, then rotating that frame
 anticlockwise about the U (i.e. second) axis by `-dec_rad`, producing an
 (W,U,V) frame which is then permuted to (U,V,W) where U is east, V is north,
-and W is in the direction of projection.  Left multiplying an ITRF-aligned
-(X,Y,Z) coordinate vector by the returned rotation matrix will result in the
-(U,V,W) projection of the (X,Y,Z) coordinates in the specified direction at the
-specified longitude:
+and W is in the direction of projection.
 
-    uvw = xyz2uvw(lon, ha, dec) * xyz
+Left multiplying an ITRF-aligned (X,Y,Z) coordinate vector by the returned
+rotation matrix will result in the (U,V,W) projection of the (X,Y,Z)
+coordinates in the specified direction at the specified longitude:
 
-!!! warning
-    A final rotation around W for the paralactic angle is likely to be needed
-    to align the U and V axes with RA/Dec directions.
+    uvw = xyz2uvw(ha, dec, lon) * xyz
 """
 function xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,2}
   [0 1 0
