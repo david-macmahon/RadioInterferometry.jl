@@ -14,7 +14,7 @@ import ERFA.DD2R
 import ERFA.DR2D
 import ERFA.CMPS
 
-using Geodesy
+import Geodesy: ECEF
 
 """
 `I3` is a 3x3 identity matrix.
