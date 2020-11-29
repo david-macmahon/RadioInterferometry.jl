@@ -4,7 +4,6 @@ functionality.
 """
 module RadioInterferometry
 
-export I3
 export dms2d
 export hms2h
 export xyz2uvw
@@ -20,9 +19,9 @@ import Geodesy: ECEF, ENU
 """
 `I3` is a 3x3 identity matrix.
 """
-I3 = Float64[1 0 0
-             0 1 0
-             0 0 1]
+const I3 = Float64[1 0 0
+                   0 1 0
+                   0 0 1]
 
 # Add default I3 argument to ERFA.rx, ERFA.ry, ERFA.rz
 ERFA.rx(phi::Real) = ERFA.rx(phi, I3)
