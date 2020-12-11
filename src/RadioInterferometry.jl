@@ -196,19 +196,20 @@ end
     xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,2}
 
 Return transformation (rotation and permutation) matrix to convert coordinates
-in ITRF aligned (X,Y,Z) frame to a (U,V,W) projection with W pointing to the
-hour angle `ha_rad` (west positive) and declination `dec_rad` as seen from
-longitude `lon_rad` (all in radians).
+from an ITRF aligned (X,Y,Z) frame to a (U,V,W) frame where U is eastward, V is
+northward, and W points to the hour angle `ha_rad` (west positive) and
+declination `dec_rad` as seen from longitude `lon_rad` (all in radians).
 
 This works by rotating the XYZ frame anticlockwise about the Z (i.e. third)
 axis by `lon_rad-ha_rad`, producing a (X',U,Z) frame, then rotating that frame
 anticlockwise about the U (i.e. second) axis by `-dec_rad`, producing an
 (W,U,V) frame which is then permuted to (U,V,W) where U is east, V is north,
-and W is in the direction of projection.
+and W is in the direction of the given hour angle and declination as seen from
+the given longitude.
 
-Left multiplying an ITRF-aligned (X,Y,Z) coordinate vector by the returned
-rotation matrix will result in the (U,V,W) projection of the (X,Y,Z)
-coordinates in the specified direction at the specified longitude:
+Left multiplying an ITRF-aligned (X,Y,Z) coordinate vector or matrix by the
+returned rotation matrix will result in the corresponding (U,V,W) coordinates
+for the given direction and longitude:
 
     uvw = xyz2uvw(ha, dec, lon) * xyz
 """
@@ -225,10 +226,12 @@ end
     xyz2uvw(x::Real, y::Real, z::Real,
             ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,1}
 
-Return the coordinataes of point(s) `xyz` (or [x,y,z]) projected in the
-direction of hour angle `ha_rad` (west positive) and `dec_rad` from longitude
-`lon_rad`, all in radians, and permuted to a (U,V,W) frame where U is east, V
-is north, and W is in the direction of projection.
+Transform point(s) `xyz` (or [x,y,z]) from an (X,Y,Z) ITRF aligned frame to a
+(U,V,W) frame where U is eastward, V is northward, and W points to the hour
+angle `ha_rad` (west positive) and declination `dec_rad` as seen from longitude
+`lon_rad` (all in radians):
+
+    uvw = xyz2uvw(xyz, ha, dec, lon)
 """
 function xyz2uvw(xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
                  ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,1}
@@ -243,21 +246,21 @@ end
 """
     enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,2}
 
-Return transformation (rotation and permutation) matrix to convert coordinates
-in topocentric (E,N,Up) frame to a (U,V,W) projection with W pointing to the
-hour angle `ha_rad` (west positive) and declination `dec_rad` as seen from
-latitude `lat_rad` (all in radians).
+Return rotation matrix to convert coordinates from a topocentric
+(East,North,Up) frame to a (U,V,W) frame where U is eastward, V is northward,
+and W points to the hour angle `ha_rad` (west positive) and declination
+`dec_rad` as seen from latitude `lat_rad` (all in radians).
 
-This works by rotating the ENU frame anticlockwise about the E (i.e. first)
-axis by `lat_rad`, producing a (E,Z,X') frame, then rotating that frame
+This works by rotating the ENU frame anticlockwise about the East (i.e. first)
+axis by `lat_rad`, producing a (East,Z,X') frame, then rotating that frame
 anticlockwise about the Z (i.e. second) axis by `-ha_rad`, producing a
 (U,Z,X") frame, then rotating anticlockwise about the U (i.e. first) axis by
 `-dec_rad`, producing the (U,V,W) frame where U is east, V is north, and W is
 in the direction of projection.
 
-Left multiplying a topocentric (E,N,Up) coordinate vector by the returned
-rotation matrix will result in the (U,V,W) projection of the (E,N,U)
-coordinates in the specified direction at the specified latitude:
+Left multiplying a topocentric (East,North,Up) coordinate vector or matrix by
+the returned rotation matrix will result in the corresponding (U,V,W)
+coordinates for the given direction and latitude:
 
     uvw = enu2uvw(ha, dec, lat) * enu
 """
@@ -272,10 +275,12 @@ end
     enu2uvw(e::Real, n::Real, u::Real,
             ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,1}
 
-Return the coordinataes of point(s) `enu` (or [e,n,u]) projected in the
-direction of hour angle `ha_rad` (west positive) and `dec_rad` from latitude
-`lat_rad`, all in radians, and permuted to a (U,V,W) frame where U is east, V
-is north, and W is in the direction of projection.
+Transform point(s) `enu` (or `[e,n,u]`) from a topocentric (East,North,Up)
+frame to a (U,V,W) frame where U is eastward, V is northward, and W points to
+the hour angle `ha_rad` (west positive) and declination `dec_rad` as seen from
+latitude `lat_rad` (all in radians):
+
+    uvw = enu2uvw(enu, ha, dec, lat)
 """
 function enu2uvw(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
                  ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,1}
