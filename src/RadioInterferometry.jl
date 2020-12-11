@@ -17,6 +17,7 @@ export h2hmsstr
 
 export xyz2uvw
 export enu2uvw
+export enu2xyz
 
 using ERFA
 import ERFA.DD2R
@@ -290,6 +291,54 @@ end
 function enu2uvw(e::Real, n::Real, u::Real,
                  ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,1}
   enu2uvw(ha_rad, dec_rad, lat_rad) * [e, n, u]
+end
+
+"""
+    enu2xyz(lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,2}
+
+Return transformation (rotation and permutation) matrix to convert coordinates
+from a topocentric (East,North,Up) frame to a topocentric ITRF aligned (X,Y,Z)
+frame for topocentric origin at geodetic latitude `lat_rad` and longitude
+`lon_rad` (both in radians).
+
+This works by rotating the ENU frame anticlockwise about the East (i.e. first)
+axis by `lat_rad`, producing a (East,Z,X') frame, then rotating that frame
+anticlockwise about the Z (i.e. second) axis by `-lon_rad`, producing a
+(Y,Z,X) frame which is then permuted to (X,Y,Z).
+
+Left multiplying a topocentric (East,North,Up) coordinate vector or matrix by
+the returned transformation matrix will result in the topocentric (X,Y,Z)
+coordinate(s) for the given latitude and longitude:
+
+    xyz = enu2xyz(lat, lon) * enu
+"""
+function enu2xyz(lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,2}
+   [0 0 1
+    1 0 0
+    0 1 0] * ERFA.ry(-lon_rad,ERFA.rx(lat_rad))
+end
+
+"""
+    enu2xyz(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+            lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,1}
+
+    enu2uvw(e::Real, n::Real, u::Real,
+            lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,1}
+
+Transform point(s) `enu` or `[e,n,u]` from a topocentric (East,North,Up) frame
+to a topocentric ITRF aligned (X,Y,Z) frame for topocentric origin at geodetic
+latitude `lat_rad` and longitude `lon_rad` (both in radians):
+
+    xyz = enu2xyz(enu, lat, lon)
+"""
+function enu2xyz(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+                 lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,1}
+  enu2xyz(lat_rad, lon_rad) * enu
+end
+
+function enu2xyz(e::Real, n::Real, u::Real,
+                 lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,1}
+  enu2xyz(lat_rad, lon_rad) * [e, n, u]
 end
 
 end # module
