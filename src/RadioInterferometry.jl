@@ -227,9 +227,9 @@ function xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real)::Array{Float64,2}
 end
 
 """
-    xyz2uvw(xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
+    xyz2uvw(xyz::AbstractArray{<:Real},
             ha_rad::Real, dec_rad::Real, lon_rad::Real
-           )::Union{Array{Float64,1},Array{Float64,2}}
+           )::Array{Float64}
 
 Transform point(s) `xyz` from an (X,Y,Z) ITRF aligned frame to a (U,V,W) frame
 where U is eastward, V is northward, and W points to the hour angle `ha_rad`
@@ -238,17 +238,17 @@ in radians):
 
     uvw = xyz2uvw(xyz, ha, dec, lon)
 """
-function xyz2uvw(xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
+function xyz2uvw(xyz::AbstractArray{<:Real},
                  ha_rad::Real, dec_rad::Real, lon_rad::Real
-                )::Union{Array{Float64,1},Array{Float64,2}}
+                )::Array{Float64}
   xyz2uvw(ha_rad, dec_rad, lon_rad) * xyz
 end
 
 """
-    xyz2uvw!(uvw::Union{Array{T,1},Array{T,2}},
-             xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
+    xyz2uvw!(uvw::AbstractArray{T},
+             xyz::AbstractArray{<:Real},
              ha_rad::Real, dec_rad::Real, lon_rad::Real
-            )::Union{Array{T,1},Array{T,2}} where {T <: Real}
+            )::AbstractArray{T} where {T<:Real}
 
 Transform point(s) `xyz` from an (X,Y,Z) ITRF aligned frame to a (U,V,W) frame
 where U is eastward, V is northward, and W points to the hour angle `ha_rad`
@@ -257,10 +257,10 @@ in radians) and store result in in `uvw`:
 
     xyz2uvw!(uvw, xyz, ha, dec, lat)
 """
-function xyz2uvw!(uvw::Union{Array{T,1},Array{T,2}},
-                  xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
+function xyz2uvw!(uvw::AbstractArray{T},
+                  xyz::AbstractArray{<:Real},
                   ha_rad::Real, dec_rad::Real, lon_rad::Real
-                 )::Union{Array{T,1},Array{T,2}} where {T <: Real}
+                 )::AbstractArray{T} where {T<:Real}
   mul!(uvw, xyz2uvw(ha_rad, dec_rad, lon_rad), xyz)
 end
 
@@ -290,9 +290,9 @@ function enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::Array{Float64,2}
 end
 
 """
-    enu2uvw(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+    enu2uvw(enu::AbstractArray{<:Real},
             ha_rad::Real, dec_rad::Real, lat_rad::Real
-           )::Union{Array{Float64,1},Array{Float64,2}}
+           )::Array{Float64}
 
 Transform point(s) `enu` from a topocentric (East,North,Up) frame to a (U,V,W)
 frame where U is eastward, V is northward, and W points to the hour angle
@@ -301,17 +301,17 @@ frame where U is eastward, V is northward, and W points to the hour angle
 
     uvw = enu2uvw(enu, ha, dec, lat)
 """
-function enu2uvw(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+function enu2uvw(enu::AbstractArray{<:Real},
                  ha_rad::Real, dec_rad::Real, lat_rad::Real
-                )::Union{Array{Float64,1},Array{Float64,2}}
+                )::Array{Float64}
   enu2uvw(ha_rad, dec_rad, lat_rad) * enu
 end
 
 """
-    enu2uvw!(uvw::Union{Array{T,1},Array{T,2}},
-             enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+    enu2uvw!(uvw::AbstractArray{T}
+             enu::AbstractArray{<:Real},
              ha_rad::Real, dec_rad::Real, lat_rad::Real
-            )::Union{Array{T,1},Array{T,2}} where {T <: Real}
+            )::AbstractArray{T} where {T<:Real}
 
 Transform point(s) `enu` from a topocentric (East,North,Up) frame to a (U,V,W)
 frame where U is eastward, V is northward, and W points to the hour angle
@@ -320,10 +320,10 @@ frame where U is eastward, V is northward, and W points to the hour angle
 
     enu2uvw!(uvw, enu, ha, dec, lat)
 """
-function enu2uvw!(uvw::Union{Array{T,1},Array{T,2}},
-                  enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+function enu2uvw!(uvw::AbstractArray{T},
+                  enu::AbstractArray{<:Real},
                   ha_rad::Real, dec_rad::Real, lat_rad::Real
-                 )::Union{Array{T,1},Array{T,2}} where {T <: Real}
+                 )::AbstractArray{T} where {T<:Real}
   mul!(uvw, enu2uvw(ha_rad, dec_rad), enu)
 end
 
@@ -353,9 +353,9 @@ function enu2xyz(lat_rad::Real, lon_rad::Real)::Array{Float64,2}
 end
 
 """
-    enu2xyz(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+    enu2xyz(enu::AbstractArray{<:Real},
             lat_rad::Real, lon_rad::Real
-           )::Union{Array{Float64,1},Array{Float64,2}}
+           )::Array{Float64}
 
 Transform point(s) `enu` from a topocentric (East,North,Up) frame to a
 topocentric ITRF aligned (X,Y,Z) frame for topocentric origin at geodetic
@@ -363,17 +363,17 @@ latitude `lat_rad` and longitude `lon_rad` (both in radians):
 
     xyz = enu2xyz(enu, lat, lon)
 """
-function enu2xyz(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+function enu2xyz(enu::AbstractArray{<:Real},
                  lat_rad::Real, lon_rad::Real
-                )::Union{Array{Float64,1},Array{Float64,2}}
+                )::Array{Float64}
   enu2xyz(lat_rad, lon_rad) * enu
 end
 
 """
-    enu2xyz!(xyz::Union{Array{T,1},Array{T,2}},
-             enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+    enu2xyz!(xyz::AbstractArray{T},
+             enu::AbstractArray{<:Real},
              lat_rad::Real, lon_rad::Real
-            )::Union{Array{T,1},Array{T,2}} where {T <: Real}
+            )::AbstractArray{T} where {T<:Real}
 
 Transform point(s) `enu` from a topocentric (East,North,Up) frame to a
 topocentric ITRF aligned (X,Y,Z) frame for topocentric origin at geodetic
@@ -382,10 +382,10 @@ in `xyz`.
 
     enu2xyz!(xyz, enu, lat, lon)
 """
-function enu2xyz!(xyz::Union{Array{T,1},Array{T,2}},
-                  enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+function enu2xyz!(xyz::AbstractArray{T},
+                  enu::AbstractArray{<:Real},
                   lat_rad::Real, lon_rad::Real
-                 )::Union{Array{T,1},Array{T,2}} where {T <: Real}
+                 )::AbstractArray{T} where {T<:Real}
   mul!(xyz, enu2xyz(lat_rad, lon_rad), enu)
 end
 
