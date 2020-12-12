@@ -19,11 +19,17 @@ export xyz2uvw
 export enu2uvw
 export enu2xyz
 
+# TODO Alllow these to reuse a user supplied Array for the rotation matrix
+export xyz2uvw!
+export enu2uvw!
+export enu2xyz!
+
 using ERFA
 import ERFA.DD2R
 import ERFA.DR2D
 import ERFA.CMPS
 
+import LinearAlgebra: mul!
 import Geodesy: ECEF, ENU
 
 """
@@ -239,6 +245,26 @@ function xyz2uvw(xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
 end
 
 """
+    xyz2uvw!(uvw::Union{Array{T,1},Array{T,2}},
+             xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
+             ha_rad::Real, dec_rad::Real, lon_rad::Real
+            )::Union{Array{T,1},Array{T,2}} where {T <: Real}
+
+Transform point(s) `xyz` from an (X,Y,Z) ITRF aligned frame to a (U,V,W) frame
+where U is eastward, V is northward, and W points to the hour angle `ha_rad`
+(west positive) and declination `dec_rad` as seen from longitude `lon_rad` (all
+in radians) and store result in in `uvw`:
+
+    xyz2uvw!(uvw, xyz, ha, dec, lat)
+"""
+function xyz2uvw!(uvw::Union{Array{T,1},Array{T,2}},
+                  xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
+                  ha_rad::Real, dec_rad::Real, lon_rad::Real
+                 )::Union{Array{T,1},Array{T,2}} where {T <: Real}
+  mul!(uvw, xyz2uvw(ha_rad, dec_rad, lon_rad), xyz)
+end
+
+"""
     enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::Array{Float64,2}
 
 Return rotation matrix to convert coordinates from a topocentric
@@ -282,6 +308,26 @@ function enu2uvw(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
 end
 
 """
+    enu2uvw!(uvw::Union{Array{T,1},Array{T,2}},
+             enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+             ha_rad::Real, dec_rad::Real, lat_rad::Real
+            )::Union{Array{T,1},Array{T,2}} where {T <: Real}
+
+Transform point(s) `enu` from a topocentric (East,North,Up) frame to a (U,V,W)
+frame where U is eastward, V is northward, and W points to the hour angle
+`ha_rad` (west positive) and declination `dec_rad` as seen from latitude
+`lat_rad` (all in radians) and store result in `uvw`:
+
+    enu2uvw!(uvw, enu, ha, dec, lat)
+"""
+function enu2uvw!(uvw::Union{Array{T,1},Array{T,2}},
+                  enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+                  ha_rad::Real, dec_rad::Real, lat_rad::Real
+                 )::Union{Array{T,1},Array{T,2}} where {T <: Real}
+  mul!(uvw, enu2uvw(ha_rad, dec_rad), enu)
+end
+
+"""
     enu2xyz(lat_rad::Real, lon_rad::Real)::Array{Float64,2}
 
 Return transformation (rotation and permutation) matrix to convert coordinates
@@ -321,6 +367,26 @@ function enu2xyz(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
                  lat_rad::Real, lon_rad::Real
                 )::Union{Array{Float64,1},Array{Float64,2}}
   enu2xyz(lat_rad, lon_rad) * enu
+end
+
+"""
+    enu2xyz!(xyz::Union{Array{T,1},Array{T,2}},
+             enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+             lat_rad::Real, lon_rad::Real
+            )::Union{Array{T,1},Array{T,2}} where {T <: Real}
+
+Transform point(s) `enu` from a topocentric (East,North,Up) frame to a
+topocentric ITRF aligned (X,Y,Z) frame for topocentric origin at geodetic
+latitude `lat_rad` and longitude `lon_rad` (both in radians) and store result
+in `xyz`.
+
+    enu2xyz!(xyz, enu, lat, lon)
+"""
+function enu2xyz!(xyz::Union{Array{T,1},Array{T,2}},
+                  enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
+                  lat_rad::Real, lon_rad::Real
+                 )::Union{Array{T,1},Array{T,2}} where {T <: Real}
+  mul!(xyz, enu2xyz(lat_rad, lon_rad), enu)
 end
 
 end # module
