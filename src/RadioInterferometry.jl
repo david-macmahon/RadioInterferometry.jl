@@ -222,7 +222,8 @@ end
 
 """
     xyz2uvw(xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
-            ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,1}
+            ha_rad::Real, dec_rad::Real, lon_rad::Real=0
+           )::Union{Array{Float64,1},Array{Float64,2}}
 
     xyz2uvw(x::Real, y::Real, z::Real,
             ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,1}
@@ -235,7 +236,8 @@ angle `ha_rad` (west positive) and declination `dec_rad` as seen from longitude
     uvw = xyz2uvw(xyz, ha, dec, lon)
 """
 function xyz2uvw(xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
-                 ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,1}
+                 ha_rad::Real, dec_rad::Real, lon_rad::Real=0
+                )::Union{Array{Float64,1},Array{Float64,2}}
   xyz2uvw(ha_rad, dec_rad, lon_rad) * xyz
 end
 
@@ -271,7 +273,8 @@ end
 
 """
     enu2uvw(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
-            ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,1}
+            ha_rad::Real, dec_rad::Real, lat_rad::Real=0
+           )::Union{Array{Float64,1},Array{Float64,2}}
 
     enu2uvw(e::Real, n::Real, u::Real,
             ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,1}
@@ -284,7 +287,8 @@ latitude `lat_rad` (all in radians):
     uvw = enu2uvw(enu, ha, dec, lat)
 """
 function enu2uvw(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
-                 ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,1}
+                 ha_rad::Real, dec_rad::Real, lat_rad::Real=0
+                )::Union{Array{Float64,1},Array{Float64,2}}
   enu2uvw(ha_rad, dec_rad, lat_rad) * enu
 end
 
@@ -320,7 +324,8 @@ end
 
 """
     enu2xyz(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
-            lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,1}
+            lat_rad::Real=0, lon_rad::Real=0
+           )::Union{Array{Float64,1},Array{Float64,2}}
 
     enu2uvw(e::Real, n::Real, u::Real,
             lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,1}
@@ -332,7 +337,8 @@ latitude `lat_rad` and longitude `lon_rad` (both in radians):
     xyz = enu2xyz(enu, lat, lon)
 """
 function enu2xyz(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
-                 lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,1}
+                 lat_rad::Real=0, lon_rad::Real=0
+                )::Union{Array{Float64,1},Array{Float64,2}}
   enu2xyz(lat_rad, lon_rad) * enu
 end
 
