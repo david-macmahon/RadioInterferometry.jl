@@ -194,7 +194,7 @@ function h2hmsstr(h::Real, ndp::Integer=3;
 end
 
 """
-    xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,2}
+    xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real)::Array{Float64,2}
 
 Return transformation (rotation and permutation) matrix to convert coordinates
 from an ITRF aligned (X,Y,Z) frame to a (U,V,W) frame where U is eastward, V is
@@ -214,7 +214,7 @@ for the given direction and longitude:
 
     uvw = xyz2uvw(ha, dec, lon) * xyz
 """
-function xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,2}
+function xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real)::Array{Float64,2}
   [0 1 0
    0 0 1
    1 0 0] * ERFA.ry(-dec_rad,ERFA.rz(lon_rad-ha_rad))
@@ -222,32 +222,24 @@ end
 
 """
     xyz2uvw(xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
-            ha_rad::Real, dec_rad::Real, lon_rad::Real=0
+            ha_rad::Real, dec_rad::Real, lon_rad::Real
            )::Union{Array{Float64,1},Array{Float64,2}}
 
-    xyz2uvw(x::Real, y::Real, z::Real,
-            ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,1}
-
-Transform point(s) `xyz` (or [x,y,z]) from an (X,Y,Z) ITRF aligned frame to a
-(U,V,W) frame where U is eastward, V is northward, and W points to the hour
-angle `ha_rad` (west positive) and declination `dec_rad` as seen from longitude
-`lon_rad` (all in radians):
+Transform point(s) `xyz` from an (X,Y,Z) ITRF aligned frame to a (U,V,W) frame
+where U is eastward, V is northward, and W points to the hour angle `ha_rad`
+(west positive) and declination `dec_rad` as seen from longitude `lon_rad` (all
+in radians):
 
     uvw = xyz2uvw(xyz, ha, dec, lon)
 """
 function xyz2uvw(xyz::Union{Array{<:Real,1},Array{<:Real,2},ECEF},
-                 ha_rad::Real, dec_rad::Real, lon_rad::Real=0
+                 ha_rad::Real, dec_rad::Real, lon_rad::Real
                 )::Union{Array{Float64,1},Array{Float64,2}}
   xyz2uvw(ha_rad, dec_rad, lon_rad) * xyz
 end
 
-function xyz2uvw(x::Real, y::Real, z::Real,
-                 ha_rad::Real, dec_rad::Real, lon_rad::Real=0)::Array{Float64,1}
-  xyz2uvw(ha_rad, dec_rad, lon_rad) * [x, y, z]
-end
-
 """
-    enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,2}
+    enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::Array{Float64,2}
 
 Return rotation matrix to convert coordinates from a topocentric
 (East,North,Up) frame to a (U,V,W) frame where U is eastward, V is northward,
@@ -267,38 +259,30 @@ coordinates for the given direction and latitude:
 
     uvw = enu2uvw(ha, dec, lat) * enu
 """
-function enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,2}
+function enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::Array{Float64,2}
    ERFA.rx(-dec_rad,ERFA.ry(-ha_rad,ERFA.rx(lat_rad)))
 end
 
 """
     enu2uvw(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
-            ha_rad::Real, dec_rad::Real, lat_rad::Real=0
+            ha_rad::Real, dec_rad::Real, lat_rad::Real
            )::Union{Array{Float64,1},Array{Float64,2}}
 
-    enu2uvw(e::Real, n::Real, u::Real,
-            ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,1}
-
-Transform point(s) `enu` (or `[e,n,u]`) from a topocentric (East,North,Up)
-frame to a (U,V,W) frame where U is eastward, V is northward, and W points to
-the hour angle `ha_rad` (west positive) and declination `dec_rad` as seen from
-latitude `lat_rad` (all in radians):
+Transform point(s) `enu` from a topocentric (East,North,Up) frame to a (U,V,W)
+frame where U is eastward, V is northward, and W points to the hour angle
+`ha_rad` (west positive) and declination `dec_rad` as seen from latitude
+`lat_rad` (all in radians):
 
     uvw = enu2uvw(enu, ha, dec, lat)
 """
 function enu2uvw(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
-                 ha_rad::Real, dec_rad::Real, lat_rad::Real=0
+                 ha_rad::Real, dec_rad::Real, lat_rad::Real
                 )::Union{Array{Float64,1},Array{Float64,2}}
   enu2uvw(ha_rad, dec_rad, lat_rad) * enu
 end
 
-function enu2uvw(e::Real, n::Real, u::Real,
-                 ha_rad::Real, dec_rad::Real, lat_rad::Real=0)::Array{Float64,1}
-  enu2uvw(ha_rad, dec_rad, lat_rad) * [e, n, u]
-end
-
 """
-    enu2xyz(lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,2}
+    enu2xyz(lat_rad::Real, lon_rad::Real)::Array{Float64,2}
 
 Return transformation (rotation and permutation) matrix to convert coordinates
 from a topocentric (East,North,Up) frame to a topocentric ITRF aligned (X,Y,Z)
@@ -316,7 +300,7 @@ coordinate(s) for the given latitude and longitude:
 
     xyz = enu2xyz(lat, lon) * enu
 """
-function enu2xyz(lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,2}
+function enu2xyz(lat_rad::Real, lon_rad::Real)::Array{Float64,2}
    [0 0 1
     1 0 0
     0 1 0] * ERFA.ry(-lon_rad,ERFA.rx(lat_rad))
@@ -324,27 +308,19 @@ end
 
 """
     enu2xyz(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
-            lat_rad::Real=0, lon_rad::Real=0
+            lat_rad::Real, lon_rad::Real
            )::Union{Array{Float64,1},Array{Float64,2}}
 
-    enu2uvw(e::Real, n::Real, u::Real,
-            lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,1}
-
-Transform point(s) `enu` or `[e,n,u]` from a topocentric (East,North,Up) frame
-to a topocentric ITRF aligned (X,Y,Z) frame for topocentric origin at geodetic
+Transform point(s) `enu` from a topocentric (East,North,Up) frame to a
+topocentric ITRF aligned (X,Y,Z) frame for topocentric origin at geodetic
 latitude `lat_rad` and longitude `lon_rad` (both in radians):
 
     xyz = enu2xyz(enu, lat, lon)
 """
 function enu2xyz(enu::Union{Array{<:Real,1},Array{<:Real,2},ENU},
-                 lat_rad::Real=0, lon_rad::Real=0
+                 lat_rad::Real, lon_rad::Real
                 )::Union{Array{Float64,1},Array{Float64,2}}
   enu2xyz(lat_rad, lon_rad) * enu
-end
-
-function enu2xyz(e::Real, n::Real, u::Real,
-                 lat_rad::Real=0, lon_rad::Real=0)::Array{Float64,1}
-  enu2xyz(lat_rad, lon_rad) * [e, n, u]
 end
 
 end # module
