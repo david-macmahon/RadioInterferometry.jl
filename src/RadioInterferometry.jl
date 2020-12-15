@@ -324,7 +324,7 @@ function enu2uvw!(uvw::AbstractArray{T},
                   enu::AbstractArray{<:Real},
                   ha_rad::Real, dec_rad::Real, lat_rad::Real
                  )::AbstractArray{T} where {T<:Real}
-  mul!(uvw, enu2uvw(ha_rad, dec_rad), enu)
+  mul!(uvw, enu2uvw(ha_rad, dec_rad, lat_rad), enu)
 end
 
 """
