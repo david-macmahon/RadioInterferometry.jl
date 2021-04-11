@@ -4,16 +4,20 @@ functionality.
 """
 module RadioInterferometry
 
-export dms2d
+export dms2deg
+export dms2rad
+export dms2ha
 export @dms_str
-export hms2h
+export hms2ha
+export hms2deg
+export hms2rad
 export @hms_str
 
-export d2dms
-export d2dmsstr
+export deg2dms
+export deg2dmsstr
 
-export h2hms
-export h2hmsstr
+export ha2hms
+export ha2hmsstr
 
 export xyz2uvw
 export enu2uvw
@@ -59,13 +63,22 @@ Speed of light in a vacuum (C) in seconds/meter
 CSPM  = 1 / CMPS
 
 """
-    dms2d(dms::AbstractString)::Float64
-    dms2d(d::Real)::Float64
+    dms2deg(dms::AbstractString)::Float64
+    dms2rad(dms::AbstractString)::Float64
+    dms2ha(dms::AbstractString)::Float64
+    dms2deg(d::Real)::Float64
+    dms2rad(d::Real)::Float64
+    dms2ha(d::Real)::Float64
 
-Parse `dms::AbstractString` from "dd:mm:ss.s" format to `Float64` degrees or
-convert `d::Real` to `Float64`.
+Parse `dms::AbstractString` from "dd:mm:ss.s" format to `Float64`
+degrees/radians/hour angle or convert `d::Real` to `Float64`
+degrees/radians/hour angle.
 """
-function dms2d(dms::AbstractString)::Float64
+function dms2deg end,
+function dms2ha end,
+function dms2rad end
+
+function dms2deg(dms::AbstractString)::Float64
   d, m, s = map(x->parse(Float64,x), split(dms * ":0:0", ":"))
   sign = 1
   if '-' in dms
@@ -76,39 +89,76 @@ function dms2d(dms::AbstractString)::Float64
   sign * d
 end
 
-dms2d(d::Real)::Float64 = Float64(d)
+@deprecate dms2d dms2deg
+
+dms2rad(dms::AbstractString) = deg2rad(dms2deg(dms))
+dms2ha(dms::AbstractString) = dms2deg(dms)/15
+dms2deg(d::Real)::Float64 = Float64(d)
+dms2rad(d::Real)::Float64 = Float64(deg2rad(d))
+dms2ha(d::Real)::Float64 = Float64(d)/15
 
 """
-    @dms_str("dd:mm:ss.s")::Float64
-    dms"dd:mm:ss.s"
+    @dms_str("dd:mm:ss.s", units="deg")::Float64
+    dms"dd:mm:ss.s"deg (or dms"dd:mm:ss.s")
+    dms"dd:mm:ss.s"ha
+    dms"dd:mm:ss.s"rad
 
-Convert sexagesimal degrees:minutes:seconds string to decimal degrees.
+Convert sexagesimal degrees:minutes:seconds string to decimal degrees,
+optionally scaled to `units`. `units` can be `"deg"` for degrees (default),
+`"ha"` for hour angle, or `"rad"` for radians. Note that passing `"ha"` for
+units converts to degrees first, then scales to hour angle.
 """
-macro dms_str(s)
-  dms2d(s)
+macro dms_str(s, u="deg")
+  @assert u in ("deg", "ha", "rad")
+  d = dms2deg(s)
+
+  u == "deg" ? dms2deg(s) :
+  u == "rad" ? dms2rad(s) : dms2ha(d)
 end
 
 """
-    hms2h(hms::AbstractString)::Float64
-    hms2h(h::Real)::Float64
+    hms2ha(hms::AbstractString)::Float64
+    hms2ha(h::Real)::Float64
+    hms2deg(hms::AbstractString)::Float64
+    hms2deg(h::Real)::Float64
+    hms2rad(hms::AbstractString)::Float64
+    hms2rad(h::Real)::Float64
 
-Parse `hms::AbstractString` from "hh:mm:ss.s" format to Float64 hours or
-convert `h::Real` to Float64.
+Parse `hms::AbstractString` from "hh:mm:ss.s" format to Float64 hour
+angle/degrees/radians or convert `h::Real` to Float64 hour
+angle/degrees/radians.
 """
-hms2h = dms2d
+function hms2ha end,
+function hms2deg end,
+function hms2rad end
+
+hms2ha(h) = dms2deg(h)
+hms2deg(h) = 15*hms2ha(h)
+hms2rad(h) = deg2rad(hms2deg(h))
+
+@deprecate hms2h hms2ha
+
 
 """
-    @hms_str("hh:mm:ss.s")
-    hms"hh:mm:ss.s"
+    @hms_str("hh:mm:ss.s", units="deg")::Float64
+    hms"hh:mm:ss.s"ha (or hms"hh:mm:ss.s")
+    hms"hh:mm:ss.s"deg
+    hms"hh:mm:ss.s"rad
 
-Convert sexagesimal hours:minutes:seconds string to decimal hours.
+Convert sexagesimal hours:minutes:seconds string to decimal hours, optionally
+scaled to `units`. `units` can be `"ha"` for hour angle (default), `"deg"`
+for degrees, or `"rad"` for radians. Note that passing `"deg"` for units
+converts to hour angle first, then scales to degrees.
 """
-macro hms_str(s)
-  hms2h(s)
+macro hms_str(s, u="ha")
+  @assert u in ("deg", "ha", "rad")
+
+  u == "ha"  ? hms2ha(s)  :
+  u == "rad" ? hms2rad(s) : hms2deg(s)
 end
 
 """
-    d2dms(d::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Rational{Int64}}
+    deg2dms(d::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
 
 Convert degrees `d` into `(sign, degrees, arcminutes, arcseconds, fraction)`
 using `ERFA.a2af()`.
@@ -120,14 +170,16 @@ returned resolution of `degrees`, `arcminutes`, `arcseconds` will be limited
 accordingly.  For example, `ndp = -3` will return results rounded to the
 nearest multiple of 10 arcminutes.  See `ERFA.a2af` for more details.
 """
-function d2dms(d::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
+function deg2dms(d::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
   ndp <= 9 || @warn "fraction may be inaccurate when ndp ($ndp) > 9"
   sign, deg, min, sec, frac = ERFA.a2af(ndp, d*ERFA.DD2R)
   (Int32(sign == '-' ? -1 : +1), deg, min, sec, ndp > 0 ? frac//10^ndp : 0//1)
 end
 
+@deprecate d2dms deg2dms
+
 """
-    d2dmsstr(d::Real, ndp::Integer=3; <kwargs>)::String
+    deg2dmsstr(d::Real, ndp::Integer=3; <kwargs>)::String
 
 Return a sexagesimal string representing `d` degrees, rounded to the precision
 specified by `ndp`.
@@ -137,14 +189,14 @@ specified by `ndp`.
 - `degwidth::Integer=0`: minimum width of the degree field.
 - `degpad::Union{AbstractChar,AbstractString}='0'`: padding for degree field.
 
-See also: [`d2dms`](@ref)
+See also: [`deg2dms`](@ref)
 """
-function d2dmsstr(d::Real, ndp::Integer=3;
-                  posind::AbstractString="+",
-                  degwidth::Integer=0,
-                  degpad::Union{AbstractChar,AbstractString}='0'
-                 )::String
-  sign, deg, min, sec, frac = d2dms(d,ndp)
+function deg2dmsstr(d::Real, ndp::Integer=3;
+                    posind::AbstractString="+",
+                    degwidth::Integer=0,
+                    degpad::Union{AbstractChar,AbstractString}='0'
+                   )::String
+  sign, deg, min, sec, frac = deg2dms(d,ndp)
   signstr = sign < 0 ? "-" : posind
   degstr = lpad(deg, degwidth, degpad)
   minstr = lpad(min, 2, '0')
@@ -153,8 +205,10 @@ function d2dmsstr(d::Real, ndp::Integer=3;
   "$(signstr)$(degstr):$(minstr):$(secstr)$(fracstr)"
 end
 
+@deprecate d2dmsstr deg2dmsstr
+
 """
-    h2hms(h::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Rational{Int64}}
+    ha2hms(h::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
 
 Convert hours `h` into `(sign, hours, minutes, seconds, fraction)`
 using `ERFA.a2tf()`.
@@ -166,14 +220,16 @@ returned resolution of `degrees`, `minutes`, `seconds` will be limited
 accordingly.  For example, `ndp = -3` will return results rounded to the
 nearest multiple of 10 minutes.  See `ERFA.a2tf` for more details.
 """
-function h2hms(h::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
+function ha2hms(h::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
   ndp <= 9 || @warn "fraction may be inaccurate when ndp ($ndp) > 9"
   sign, deg, min, sec, frac = ERFA.a2tf(ndp, h*15*ERFA.DD2R)
   (Int32(sign == '-' ? -1 : +1), deg, min, sec, ndp > 0 ? frac//10^ndp : 0//1)
 end
 
+@deprecate h2hms ha2hms
+
 """
-    h2hmsstr(h::Real, ndp::Integer=3; <kwargs>)::String
+    ha2hmsstr(h::Real, ndp::Integer=3; <kwargs>)::String
 
 Return a sexagesimal string representing `h` hours, rounded to the precision
 specified by `ndp`.
@@ -185,12 +241,12 @@ specified by `ndp`.
 
 See also: [`hhdms`](@ref)
 """
-function h2hmsstr(h::Real, ndp::Integer=3;
+function ha2hmsstr(h::Real, ndp::Integer=3;
                   posind::AbstractString="",
                   hourwidth::Integer=0,
                   hourpad::Union{AbstractChar,AbstractString}='0'
                  )::String
-  sign, hour, min, sec, frac = h2hms(h,ndp)
+  sign, hour, min, sec, frac = ha2hms(h,ndp)
   signstr = sign < 0 ? "-" : posind
   hourstr = lpad(hour, hourwidth, hourpad)
   minstr = lpad(min, 2, '0')
@@ -198,6 +254,8 @@ function h2hmsstr(h::Real, ndp::Integer=3;
   fracstr = ndp > 0 ? ".$(lpad(Int(round(frac*10^ndp)), ndp, '0'))" : ""
   "$(signstr)$(hourstr):$(minstr):$(secstr)$(fracstr)"
 end
+
+@deprecate h2hmsstr ha2hmsstr
 
 """
     xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real)::Array{Float64,2}
