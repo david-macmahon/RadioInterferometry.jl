@@ -20,11 +20,13 @@ export ha2hms
 export ha2hmsstr
 
 export xyz2uvw
+export xyz2enu
 export enu2uvw
 export enu2xyz
 
-# TODO Alllow these to reuse a user supplied Array for the rotation matrix
+# TODO Allow these to reuse a user supplied Array for the rotation matrix
 export xyz2uvw!
+export xyz2enu!
 export enu2uvw!
 export enu2xyz!
 
@@ -320,6 +322,68 @@ function xyz2uvw!(uvw::AbstractArray{T},
                   ha_rad::Real, dec_rad::Real, lon_rad::Real
                  )::AbstractArray{T} where {T<:Real}
   mul!(uvw, xyz2uvw(ha_rad, dec_rad, lon_rad), xyz)
+end
+
+"""
+    xyz2enu(lat_rad::Real, lon_rad::Real)::Array{Float64,2}
+
+Return transformation (rotation and permutation) matrix to convert
+coordinates from a topocentric ITRF aligned (X,Y,Z) frame to a topocentric
+(East,North,Up) frame for topocentric origin at geodetic latitude `lat_rad`
+and longitude `lon_rad` (both in radians).
+
+This works by rotating the XYZ frame anticlockwise about the Z (i.e. third)
+axis by `lon_rad`, producing a (X',East,Z) frame, then rotating that frame
+anticlockwise about the E (i.e. second) axis by `-lat_rad`, producing a
+(U,E,N) frame which is then permuted to (E,N,U).
+
+Left multiplying a topocentric (X,Y,Z) coordinate vector or matrix by the
+returned transformation matrix will result in the topocentric (East,North,Up)
+coordinate(s) for the given latitude and longitude:
+
+    enu = xyz2enu(lat, lon) * xyz
+"""
+function xyz2enu(lat_rad::Real, lon_rad::Real)::Array{Float64,2}
+   [0 1 0
+    0 0 1
+    1 0 0] * ERFA.ry(-lat_rad,ERFA.rz(lon_rad))
+end
+
+"""
+    xyz2enu(xyz::AbstractArray{<:Real},
+            lat_rad::Real, lon_rad::Real
+           )::Array{Float64}
+
+Transform point(s) `xyz` from a topocentric ITRF aligned (X,Y,Z) frame to a
+topocentric (East,North,Up) frame for topocentric origin at geodetic latitude
+`lat_rad` and longitude `lon_rad` (both in radians):
+
+    enu = xyz2enu(xyz, lat, lon)
+"""
+function xyz2enu(xyz::AbstractArray{<:Real},
+                 lat_rad::Real, lon_rad::Real
+                )::Array{Float64}
+  xyz2enu(lat_rad, lon_rad) * xyz
+end
+
+"""
+    xyz2enu!(enu::AbstractArray{T},
+             xyz::AbstractArray{<:Real},
+             lat_rad::Real, lon_rad::Real
+            )::AbstractArray{T} where {T<:Real}
+
+Transform point(s) `xyz` from a topocentric ITRF aligned (X,Y,Z) frame to a
+topocentric (East,North,Up) frame for topocentric origin at geodetic latitude
+`lat_rad` and longitude `lon_rad` (both in radians) and store result in
+`enu`.
+
+    xyz2enu!(enu, xyz, lat, lon)
+"""
+function xyz2enu!(enu::AbstractArray{T},
+                  xyz::AbstractArray{<:Real},
+                  lat_rad::Real, lon_rad::Real
+                 )::AbstractArray{T} where {T<:Real}
+  mul!(enu, xyz2enu(lat_rad, lon_rad), xyz)
 end
 
 """
