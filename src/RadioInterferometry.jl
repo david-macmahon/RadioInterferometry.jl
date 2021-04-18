@@ -19,6 +19,11 @@ export deg2dmsstr
 export ha2hms
 export ha2hmsstr
 
+export deg2ha
+export ha2deg
+export rad2ha
+export ha2rad
+
 export xyz2uvw
 export xyz2enu
 export enu2uvw
@@ -265,6 +270,30 @@ function ha2hmsstr(h::Real, ndp::Integer=3;
 end
 
 @deprecate h2hmsstr ha2hmsstr
+
+"""
+    deg2ha(d)
+Convert `d` from degrees to hour angle.
+"""
+deg2ha(d) = d/15
+
+"""
+    ha2deg(h)
+Convert `h` from hour angle to degrees.
+"""
+ha2deg(h) = h*15
+
+"""
+    rad2ha(r)
+Convert `r` from radians to hour angle.
+"""
+rad2ha = deg2ha ∘ rad2deg
+
+"""
+    ha2rad(h)
+Convert `h` from hour angle to radians.
+"""
+ha2rad = deg2rad ∘ ha2deg
 
 """
     xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real)::Array{Float64,2}
