@@ -1,7 +1,7 @@
 name = "RadioInterferometry"
 uuid = "d7a65883-3b66-4fe4-a274-f0f417c4cddf"
 authors = ["David MacMahon <davidm@astro.berkeley.edu>"]
-version = "0.3.0"
+version = "0.3.1"
 
 [deps]
 ERFA = "17511681-8477-586a-8d98-4cfd5a1f2ec3"
