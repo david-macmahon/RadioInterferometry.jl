@@ -35,6 +35,13 @@ import ERFA.DD2R
 import ERFA.DR2D
 import ERFA.CMPS
 
+function __init__()
+  # Add some utility functions to ERFA that are missing from eariler versions
+  isdefined(ERFA, :ae2hd) || Base.include(ERFA, joinpath(@__DIR__, "ae2hd.jl"))
+  isdefined(ERFA, :hd2ae) || Base.include(ERFA, joinpath(@__DIR__, "hd2ae.jl"))
+  isdefined(ERFA, :hd2pa) || Base.include(ERFA, joinpath(@__DIR__, "hd2pa.jl"))
+end
+
 import LinearAlgebra: mul!
 import Geodesy: ECEF, ENU
 
