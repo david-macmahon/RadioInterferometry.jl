@@ -15,9 +15,13 @@ export @hms_str
 
 export deg2dms
 export deg2dmsstr
+export ha2dmsstr
+export rad2dmsstr
 
 export ha2hms
 export ha2hmsstr
+export deg2hmsstr
+export rad2hmsstr
 
 export deg2ha
 export ha2deg
@@ -220,6 +224,24 @@ end
 @deprecate d2dmsstr deg2dmsstr
 
 """
+    ha2dmsstr(h::Real, ndp::Integer=3; kwargs...)::String
+
+Return `deg2dmsstr(ha2deg(h), ndp; kwargs...)`
+"""
+function ha2dmsstr(h::Real, ndp::Integer=3; kwargs...)
+  deg2dmsstr(ha2deg(h), ndp; kwargs...)
+end
+
+"""
+    rad2dmsstr(r::Real, ndp::Integer=3; kwargs...)::String
+
+Return `deg2dmsstr(rad2deg(r), ndp; kwargs...)`
+"""
+function rad2dmsstr(r::Real, ndp::Integer=3; kwargs...)
+  deg2dmsstr(rad2deg(r), ndp; kwargs...)
+end
+
+"""
     ha2hms(h::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
 
 Convert hours `h` into `(sign, hours, minutes, seconds, fraction)`
@@ -268,6 +290,24 @@ function ha2hmsstr(h::Real, ndp::Integer=3;
 end
 
 @deprecate h2hmsstr ha2hmsstr
+
+"""
+    deg2hmsstr(d::Real, ndp::Integer=3; kwargs...)::String
+
+Return `ha2hmsstr(deg2ha(d), ndp; kwargs...)`
+"""
+function deg2hmsstr(d::Real, ndp::Integer=3; kwargs...)
+  ha2hmsstr(deg2ha(d), ndp; kwargs...)
+end
+
+"""
+    rad2hmsstr(r::Real, ndp::Integer=3; kwargs...)::String
+
+Return `ha2hmsstr(rad2ha(d), ndp; kwargs...)`
+"""
+function rad2hmsstr(r::Real, ndp::Integer=3; kwargs...)
+  ha2hmsstr(rad2ha(r), ndp; kwargs...)
+end
 
 """
     deg2ha(d)
