@@ -242,6 +242,44 @@ function rad2dmsstr(r::Real, ndp::Integer=3; kwargs...)
 end
 
 """
+    deg2dmsstr(;digits=3, kwargs...)
+    deg2hmsstr(;digits=3, kwargs...)
+    ha2dmsstr(;digits=3, kwargs...)
+    ha2hmsstr(;digits=3, kwargs...)
+    rad2dmsstr(;digits=3, kwargs...)
+    rad2hmsstr(;digits=3, kwargs...)
+
+Return 1-input function that passes its argument as the first parameter and
+`digits` as the second parameter to the 2-arg method of the same function.
+This can be useful with function chaining/piping.  `kwargs` are passed
+through too.
+
+# Examples
+```jldoctest
+julia> 3661//3600 |> deg2dmsstr
+"+1:01:01.000"
+
+julia> 34.567 |> deg2dmsstr
+"+34:34:01.200"
+
+julia> -0.261799315 |> rad2hmsstr
+"-0:59:59.999"
+
+julia> -0.261799315 |> rad2hmsstr(digits=2)
+"-1:00:00.00"
+
+julia> 3+sqrt(2)/10 |> rad2dmsstr(digits=6)
+"+179:59:24.667385"
+```
+"""
+deg2dmsstr(;digits=3, kwargs...) = x->deg2dmsstr(x, digits; kwargs...)
+deg2hmsstr(;digits=3, kwargs...) = x->deg2hmsstr(x, digits; kwargs...)
+ha2dmsstr( ;digits=3, kwargs...) = x->ha2dmsstr( x, digits; kwargs...)
+ha2hmsstr( ;digits=3, kwargs...) = x->ha2hmsstr( x, digits; kwargs...)
+rad2dmsstr(;digits=3, kwargs...) = x->rad2dmsstr(x, digits; kwargs...)
+rad2hmsstr(;digits=3, kwargs...) = x->rad2hmsstr(x, digits; kwargs...)
+
+"""
     ha2hms(h::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
 
 Convert hours `h` into `(sign, hours, minutes, seconds, fraction)`
