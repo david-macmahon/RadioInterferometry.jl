@@ -499,6 +499,31 @@ function xyz2enu!(enu::AbstractArray{T},
 end
 
 """
+    enu2uvw(az_rad::Real, el_rad::Real)::Array{Float64,2}
+
+Return rotation matrix to convert coordinates from a topocentric
+(East,North,Up) frame to a (U,V,W) frame where U is eastward, V is northward,
+and W points to azimuth `az_rad` (east positive) and elevation `el_rad` (both
+in radians).
+
+This works by rotating the ENU frame anticlockwise about the Up (i.e. third)
+axis by `-az_rad`, producing a (W',U,Up) frame, then rotating that frame
+anticlockwise about the U (i.e. second) axis by `-el_rad`, producing the
+(W,U,V) frame, which is then permuted to (U,V,W).
+
+Left multiplying a topocentric (East,North,Up) coordinate vector or matrix by
+the returned rotation matrix will result in the corresponding (U,V,W)
+coordinates for the given direction:
+
+    uvw = enu2uvw(az, el) * enu
+"""
+function enu2uvw(az_rad::Real, el_rad::Real)::Array{Float64,2}
+  [0 1 0
+   0 0 1
+   1 0 0] * ERFA.ry(-el_rad, ERFA.rz(-az_rad))
+end
+
+"""
     enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::Array{Float64,2}
 
 Return rotation matrix to convert coordinates from a topocentric
