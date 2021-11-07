@@ -95,14 +95,14 @@ function dms2ha end,
 function dms2rad end
 
 function dms2deg(dms::AbstractString)::Float64
-  d, m, s = map(x->parse(Float64,x), split(dms * ":0:0", ":"))
-  sign = 1
-  if '-' in dms
-    sign = -1
-    d = -d
-  end
-  d += m/60 + s/3600
-  sign * d
+    d, m, s = map(x->parse(Float64,x), split(dms * ":0:0", ":"))
+    sign = 1
+    if '-' in dms
+        sign = -1
+        d = -d
+    end
+    d += m/60 + s/3600
+    sign * d
 end
 
 @deprecate dms2d dms2deg
@@ -125,11 +125,11 @@ optionally scaled to `units`. `units` can be `"deg"` for degrees (default),
 units converts to degrees first, then scales to hour angle.
 """
 macro dms_str(s, u="deg")
-  @assert u in ("deg", "ha", "rad")
-  d = dms2deg(s)
+    @assert u in ("deg", "ha", "rad")
+    d = dms2deg(s)
 
-  u == "deg" ? dms2deg(s) :
-  u == "rad" ? dms2rad(s) : dms2ha(d)
+    u == "deg" ? dms2deg(s) :
+    u == "rad" ? dms2rad(s) : dms2ha(d)
 end
 
 """
@@ -167,10 +167,10 @@ for degrees, or `"rad"` for radians. Note that passing `"deg"` for units
 converts to hour angle first, then scales to degrees.
 """
 macro hms_str(s, u="ha")
-  @assert u in ("deg", "ha", "rad")
+    @assert u in ("deg", "ha", "rad")
 
-  u == "ha"  ? hms2ha(s)  :
-  u == "rad" ? hms2rad(s) : hms2deg(s)
+    u == "ha"  ? hms2ha(s)  :
+    u == "rad" ? hms2rad(s) : hms2deg(s)
 end
 
 """
@@ -187,9 +187,9 @@ accordingly.  For example, `ndp = -3` will return results rounded to the
 nearest multiple of 10 arcminutes.  See `ERFA.a2af` for more details.
 """
 function deg2dms(d::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
-  ndp <= 9 || @warn "fraction may be inaccurate when ndp ($ndp) > 9"
-  sign, deg, min, sec, frac = ERFA.a2af(ndp, d*ERFA.DD2R)
-  (Int32(sign == '-' ? -1 : +1), deg, min, sec, ndp > 0 ? frac//10^ndp : 0//1)
+    ndp <= 9 || @warn "fraction may be inaccurate when ndp ($ndp) > 9"
+    sign, deg, min, sec, frac = ERFA.a2af(ndp, d*ERFA.DD2R)
+    (Int32(sign == '-' ? -1 : +1), deg, min, sec, ndp > 0 ? frac//10^ndp : 0//1)
 end
 
 @deprecate d2dms deg2dms
@@ -212,13 +212,13 @@ function deg2dmsstr(d::Real, ndp::Integer=3;
                     degwidth::Integer=0,
                     degpad::Union{AbstractChar,AbstractString}='0'
                    )::String
-  sign, deg, min, sec, frac = deg2dms(d,ndp)
-  signstr = sign < 0 ? "-" : posind
-  degstr = lpad(deg, degwidth, degpad)
-  minstr = lpad(min, 2, '0')
-  secstr = lpad(sec, 2, '0')
-  fracstr = ndp > 0 ? ".$(lpad(Int(round(frac*10^ndp)), ndp, '0'))" : ""
-  "$(signstr)$(degstr):$(minstr):$(secstr)$(fracstr)"
+    sign, deg, min, sec, frac = deg2dms(d,ndp)
+    signstr = sign < 0 ? "-" : posind
+    degstr = lpad(deg, degwidth, degpad)
+    minstr = lpad(min, 2, '0')
+    secstr = lpad(sec, 2, '0')
+    fracstr = ndp > 0 ? ".$(lpad(Int(round(frac*10^ndp)), ndp, '0'))" : ""
+    "$(signstr)$(degstr):$(minstr):$(secstr)$(fracstr)"
 end
 
 @deprecate d2dmsstr deg2dmsstr
@@ -229,7 +229,7 @@ end
 Return `deg2dmsstr(ha2deg(h), ndp; kwargs...)`
 """
 function ha2dmsstr(h::Real, ndp::Integer=3; kwargs...)
-  deg2dmsstr(ha2deg(h), ndp; kwargs...)
+    deg2dmsstr(ha2deg(h), ndp; kwargs...)
 end
 
 """
@@ -238,7 +238,7 @@ end
 Return `deg2dmsstr(rad2deg(r), ndp; kwargs...)`
 """
 function rad2dmsstr(r::Real, ndp::Integer=3; kwargs...)
-  deg2dmsstr(rad2deg(r), ndp; kwargs...)
+    deg2dmsstr(rad2deg(r), ndp; kwargs...)
 end
 
 """
@@ -293,9 +293,9 @@ accordingly.  For example, `ndp = -3` will return results rounded to the
 nearest multiple of 10 minutes.  See `ERFA.a2tf` for more details.
 """
 function ha2hms(h::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
-  ndp <= 9 || @warn "fraction may be inaccurate when ndp ($ndp) > 9"
-  sign, deg, min, sec, frac = ERFA.a2tf(ndp, h*15*ERFA.DD2R)
-  (Int32(sign == '-' ? -1 : +1), deg, min, sec, ndp > 0 ? frac//10^ndp : 0//1)
+    ndp <= 9 || @warn "fraction may be inaccurate when ndp ($ndp) > 9"
+    sign, deg, min, sec, frac = ERFA.a2tf(ndp, h*15*ERFA.DD2R)
+    (Int32(sign == '-' ? -1 : +1), deg, min, sec, ndp > 0 ? frac//10^ndp : 0//1)
 end
 
 @deprecate h2hms ha2hms
@@ -314,17 +314,17 @@ specified by `ndp`.
 See also: [`hhdms`](@ref)
 """
 function ha2hmsstr(h::Real, ndp::Integer=3;
-                  posind::AbstractString="",
-                  hourwidth::Integer=0,
-                  hourpad::Union{AbstractChar,AbstractString}='0'
-                 )::String
-  sign, hour, min, sec, frac = ha2hms(h,ndp)
-  signstr = sign < 0 ? "-" : posind
-  hourstr = lpad(hour, hourwidth, hourpad)
-  minstr = lpad(min, 2, '0')
-  secstr = lpad(sec, 2, '0')
-  fracstr = ndp > 0 ? ".$(lpad(Int(round(frac*10^ndp)), ndp, '0'))" : ""
-  "$(signstr)$(hourstr):$(minstr):$(secstr)$(fracstr)"
+                   posind::AbstractString="",
+                   hourwidth::Integer=0,
+                   hourpad::Union{AbstractChar,AbstractString}='0'
+                  )::String
+    sign, hour, min, sec, frac = ha2hms(h,ndp)
+    signstr = sign < 0 ? "-" : posind
+    hourstr = lpad(hour, hourwidth, hourpad)
+    minstr = lpad(min, 2, '0')
+    secstr = lpad(sec, 2, '0')
+    fracstr = ndp > 0 ? ".$(lpad(Int(round(frac*10^ndp)), ndp, '0'))" : ""
+    "$(signstr)$(hourstr):$(minstr):$(secstr)$(fracstr)"
 end
 
 @deprecate h2hmsstr ha2hmsstr
@@ -335,7 +335,7 @@ end
 Return `ha2hmsstr(deg2ha(d), ndp; kwargs...)`
 """
 function deg2hmsstr(d::Real, ndp::Integer=3; kwargs...)
-  ha2hmsstr(deg2ha(d), ndp; kwargs...)
+    ha2hmsstr(deg2ha(d), ndp; kwargs...)
 end
 
 """
@@ -344,7 +344,7 @@ end
 Return `ha2hmsstr(rad2ha(d), ndp; kwargs...)`
 """
 function rad2hmsstr(r::Real, ndp::Integer=3; kwargs...)
-  ha2hmsstr(rad2ha(r), ndp; kwargs...)
+    ha2hmsstr(rad2ha(r), ndp; kwargs...)
 end
 
 """
@@ -393,9 +393,9 @@ for the given direction and longitude:
     uvw = xyz2uvw(ha, dec, lon) * xyz
 """
 function xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real)::Array{Float64,2}
-  [0 1 0
-   0 0 1
-   1 0 0] * ERFA.ry(-dec_rad,ERFA.rz(lon_rad-ha_rad))
+    [0 1 0
+     0 0 1
+     1 0 0] * ERFA.ry(-dec_rad,ERFA.rz(lon_rad-ha_rad))
 end
 
 """
@@ -413,7 +413,7 @@ in radians):
 function xyz2uvw(xyz::AbstractArray{<:Real},
                  ha_rad::Real, dec_rad::Real, lon_rad::Real
                 )::Array{Float64}
-  xyz2uvw(ha_rad, dec_rad, lon_rad) * xyz
+    xyz2uvw(ha_rad, dec_rad, lon_rad) * xyz
 end
 
 """
@@ -433,7 +433,7 @@ function xyz2uvw!(uvw::AbstractArray{T},
                   xyz::AbstractArray{<:Real},
                   ha_rad::Real, dec_rad::Real, lon_rad::Real
                  )::AbstractArray{T} where {T<:Real}
-  mul!(uvw, xyz2uvw(ha_rad, dec_rad, lon_rad), xyz)
+    mul!(uvw, xyz2uvw(ha_rad, dec_rad, lon_rad), xyz)
 end
 
 """
@@ -456,9 +456,9 @@ coordinate(s) for the given latitude and longitude:
     enu = xyz2enu(lat, lon) * xyz
 """
 function xyz2enu(lat_rad::Real, lon_rad::Real)::Array{Float64,2}
-   [0 1 0
-    0 0 1
-    1 0 0] * ERFA.ry(-lat_rad,ERFA.rz(lon_rad))
+    [0 1 0
+     0 0 1
+     1 0 0] * ERFA.ry(-lat_rad,ERFA.rz(lon_rad))
 end
 
 """
@@ -475,7 +475,7 @@ topocentric (East,North,Up) frame for topocentric origin at geodetic latitude
 function xyz2enu(xyz::AbstractArray{<:Real},
                  lat_rad::Real, lon_rad::Real
                 )::Array{Float64}
-  xyz2enu(lat_rad, lon_rad) * xyz
+    xyz2enu(lat_rad, lon_rad) * xyz
 end
 
 """
@@ -495,7 +495,7 @@ function xyz2enu!(enu::AbstractArray{T},
                   xyz::AbstractArray{<:Real},
                   lat_rad::Real, lon_rad::Real
                  )::AbstractArray{T} where {T<:Real}
-  mul!(enu, xyz2enu(lat_rad, lon_rad), xyz)
+    mul!(enu, xyz2enu(lat_rad, lon_rad), xyz)
 end
 
 """
@@ -518,9 +518,9 @@ coordinates for the given direction:
     uvw = enu2uvw(az, el) * enu
 """
 function enu2uvw(az_rad::Real, el_rad::Real)::Array{Float64,2}
-  [0 1 0
-   0 0 1
-   1 0 0] * ERFA.ry(-el_rad, ERFA.rz(-az_rad))
+    [0 1 0
+     0 0 1
+     1 0 0] * ERFA.ry(-el_rad, ERFA.rz(-az_rad))
 end
 
 """
@@ -545,7 +545,7 @@ coordinates for the given direction and latitude:
     uvw = enu2uvw(ha, dec, lat) * enu
 """
 function enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::Array{Float64,2}
-   ERFA.rx(-dec_rad,ERFA.ry(-ha_rad,ERFA.rx(lat_rad)))
+    ERFA.rx(-dec_rad,ERFA.ry(-ha_rad,ERFA.rx(lat_rad)))
 end
 
 """
@@ -563,7 +563,7 @@ frame where U is eastward, V is northward, and W points to the hour angle
 function enu2uvw(enu::AbstractArray{<:Real},
                  ha_rad::Real, dec_rad::Real, lat_rad::Real
                 )::Array{Float64}
-  enu2uvw(ha_rad, dec_rad, lat_rad) * enu
+    enu2uvw(ha_rad, dec_rad, lat_rad) * enu
 end
 
 """
@@ -583,7 +583,7 @@ function enu2uvw!(uvw::AbstractArray{T},
                   enu::AbstractArray{<:Real},
                   ha_rad::Real, dec_rad::Real, lat_rad::Real
                  )::AbstractArray{T} where {T<:Real}
-  mul!(uvw, enu2uvw(ha_rad, dec_rad, lat_rad), enu)
+    mul!(uvw, enu2uvw(ha_rad, dec_rad, lat_rad), enu)
 end
 
 """
@@ -606,9 +606,9 @@ coordinate(s) for the given latitude and longitude:
     xyz = enu2xyz(lat, lon) * enu
 """
 function enu2xyz(lat_rad::Real, lon_rad::Real)::Array{Float64,2}
-   [0 0 1
-    1 0 0
-    0 1 0] * ERFA.ry(-lon_rad,ERFA.rx(lat_rad))
+    [0 0 1
+     1 0 0
+     0 1 0] * ERFA.ry(-lon_rad,ERFA.rx(lat_rad))
 end
 
 """
@@ -625,7 +625,7 @@ latitude `lat_rad` and longitude `lon_rad` (both in radians):
 function enu2xyz(enu::AbstractArray{<:Real},
                  lat_rad::Real, lon_rad::Real
                 )::Array{Float64}
-  enu2xyz(lat_rad, lon_rad) * enu
+    enu2xyz(lat_rad, lon_rad) * enu
 end
 
 """
@@ -645,7 +645,7 @@ function enu2xyz!(xyz::AbstractArray{T},
                   enu::AbstractArray{<:Real},
                   lat_rad::Real, lon_rad::Real
                  )::AbstractArray{T} where {T<:Real}
-  mul!(xyz, enu2xyz(lat_rad, lon_rad), enu)
+    mul!(xyz, enu2xyz(lat_rad, lon_rad), enu)
 end
 
 end # module
