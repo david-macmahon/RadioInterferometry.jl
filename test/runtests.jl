@@ -24,6 +24,8 @@ randdec = randlat
     end
 end
 
+include("rotations.jl")
+
 @testset "xyz2enu tests" begin
     # Atlantic ocean
     @test xyz2enu(0, 0) == [0 1 0
