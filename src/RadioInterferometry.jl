@@ -53,6 +53,15 @@ import LinearAlgebra: mul!
 import Geodesy: ECEF, ENU
 import Rotations: RotX, RotY, RotZ
 
+using Requires
+
+# Add Symbolics functionality if/when it is imported.
+function __init__()
+    @require Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7" begin
+        include("symbolics.jl")
+    end
+end
+
 """
     rx(phi::Real)::Array{<:Real,2}
     ry(phi::Real)::Array{<:Real,2}
