@@ -570,7 +570,7 @@ true
 function enu2uvw(az_rad::Real, el_rad::Real)::AbstractArray{<:Real,2}
     [0 1 0
      0 0 1
-     1 0 0] * ry(-el_rad) * rz(-az_rad)
+     1 0 0] * ry(-el_rad) * rz(π/2-az_rad)
 end
 
 """
