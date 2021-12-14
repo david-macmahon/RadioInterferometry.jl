@@ -63,9 +63,9 @@ function __init__()
 end
 
 """
-    rx(phi::Real)::Array{<:Real,2}
-    ry(phi::Real)::Array{<:Real,2}
-    rz(phi::Real)::Array{<:Real,2}
+    rx(phi::Real)::AbstractArray{<:Real,2}
+    ry(phi::Real)::AbstractArray{<:Real,2}
+    rz(phi::Real)::AbstractArray{<:Real,2}
 
 Return a 3x3 rotation matrix that will rotate a right handed reference frame by
 `phi` radians anticlockwise around the X, Y, or Z axis.
@@ -76,13 +76,13 @@ julia> RadioInterferometry.rz(π/2) * [1, 0, 0] ≈ [0, -1, 0]
 true
 ```
 """
-function rx(phi::Real)
+function rx(phi::Real)::AbstractArray{<:Real,2}
     RotX(-phi)
 end,
-function ry(phi::Real)
+function ry(phi::Real)::AbstractArray{<:Real,2}
     RotY(-phi)
 end,
-function rz(phi::Real)
+function rz(phi::Real)::AbstractArray{<:Real,2}
     RotZ(-phi)
 end
 
@@ -394,7 +394,7 @@ Convert `h` from hour angle to radians.
 ha2rad = deg2rad ∘ ha2deg
 
 """
-    xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real)::Array{<:Real,2}
+    xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real)::AbstractArray{<:Real,2}
 
 Return transformation (rotation and permutation) matrix to convert coordinates
 from an ITRF aligned (X,Y,Z) frame to a (U,V,W) frame where U is eastward, V is
@@ -414,7 +414,7 @@ for the given direction and longitude:
 
     uvw = xyz2uvw(ha, dec, lon) * xyz
 """
-function xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real)::Array{<:Real,2}
+function xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real)::AbstractArray{<:Real,2}
     [0 1 0
      0 0 1
      1 0 0] * ry(-dec_rad) * rz(lon_rad-ha_rad)
@@ -423,7 +423,7 @@ end
 """
     xyz2uvw(xyz::AbstractArray{<:Real},
             ha_rad::Real, dec_rad::Real, lon_rad::Real
-           )::Array{<:Real}
+           )::AbstractArray{<:Real}
 
 Transform point(s) `xyz` from an (X,Y,Z) ITRF aligned frame to a (U,V,W) frame
 where U is eastward, V is northward, and W points to the hour angle `ha_rad`
@@ -434,7 +434,7 @@ in radians):
 """
 function xyz2uvw(xyz::AbstractArray{<:Real},
                  ha_rad::Real, dec_rad::Real, lon_rad::Real
-                )::Array{<:Real}
+                )::AbstractArray{<:Real}
     xyz2uvw(ha_rad, dec_rad, lon_rad) * xyz
 end
 
@@ -459,7 +459,7 @@ function xyz2uvw!(uvw::AbstractArray{T},
 end
 
 """
-    xyz2enu(lat_rad::Real, lon_rad::Real)::Array{<:Real,2}
+    xyz2enu(lat_rad::Real, lon_rad::Real)::AbstractArray{<:Real,2}
 
 Return transformation (rotation and permutation) matrix to convert
 coordinates from a topocentric ITRF aligned (X,Y,Z) frame to a topocentric
@@ -477,7 +477,7 @@ coordinate(s) for the given latitude and longitude:
 
     enu = xyz2enu(lat, lon) * xyz
 """
-function xyz2enu(lat_rad::Real, lon_rad::Real)::Array{<:Real,2}
+function xyz2enu(lat_rad::Real, lon_rad::Real)::AbstractArray{<:Real,2}
     [0 1 0
      0 0 1
      1 0 0] * ry(-lat_rad) * rz(lon_rad)
@@ -486,7 +486,7 @@ end
 """
     xyz2enu(xyz::AbstractArray{<:Real},
             lat_rad::Real, lon_rad::Real
-           )::Array{<:Real}
+           )::AbstractArray{<:Real}
 
 Transform point(s) `xyz` from a topocentric ITRF aligned (X,Y,Z) frame to a
 topocentric (East,North,Up) frame for topocentric origin at geodetic latitude
@@ -496,7 +496,7 @@ topocentric (East,North,Up) frame for topocentric origin at geodetic latitude
 """
 function xyz2enu(xyz::AbstractArray{<:Real},
                  lat_rad::Real, lon_rad::Real
-                )::Array{<:Real}
+                )::AbstractArray{<:Real}
     xyz2enu(lat_rad, lon_rad) * xyz
 end
 
@@ -521,7 +521,7 @@ function xyz2enu!(enu::AbstractArray{T},
 end
 
 """
-    enu2uvw(az_rad::Real, el_rad::Real)::Array{<:Real,2}
+    enu2uvw(az_rad::Real, el_rad::Real)::AbstractArray{<:Real,2}
 
 Return rotation matrix to convert coordinates from a topocentric
 (East,North,Up) frame to a (U,V,W) frame where U is eastward, V is northward,
@@ -539,14 +539,14 @@ coordinates for the given direction:
 
     uvw = enu2uvw(az, el) * enu
 """
-function enu2uvw(az_rad::Real, el_rad::Real)::Array{<:Real,2}
+function enu2uvw(az_rad::Real, el_rad::Real)::AbstractArray{<:Real,2}
     [0 1 0
      0 0 1
      1 0 0] * ry(-el_rad) * rz(-az_rad)
 end
 
 """
-    enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::Array{<:Real,2}
+    enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::AbstractArray{<:Real,2}
 
 Return rotation matrix to convert coordinates from a topocentric
 (East,North,Up) frame to a (U,V,W) frame where U is eastward, V is northward,
@@ -566,14 +566,14 @@ coordinates for the given direction and latitude:
 
     uvw = enu2uvw(ha, dec, lat) * enu
 """
-function enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::Array{<:Real,2}
+function enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::AbstractArray{<:Real,2}
     rx(-dec_rad) * ry(-ha_rad) * rx(lat_rad)
 end
 
 """
     enu2uvw(enu::AbstractArray{<:Real},
             ha_rad::Real, dec_rad::Real, lat_rad::Real
-           )::Array{<:Real}
+           )::AbstractArray{<:Real}
 
 Transform point(s) `enu` from a topocentric (East,North,Up) frame to a (U,V,W)
 frame where U is eastward, V is northward, and W points to the hour angle
@@ -584,7 +584,7 @@ frame where U is eastward, V is northward, and W points to the hour angle
 """
 function enu2uvw(enu::AbstractArray{<:Real},
                  ha_rad::Real, dec_rad::Real, lat_rad::Real
-                )::Array{<:Real}
+                )::AbstractArray{<:Real}
     enu2uvw(ha_rad, dec_rad, lat_rad) * enu
 end
 
@@ -609,7 +609,7 @@ function enu2uvw!(uvw::AbstractArray{T},
 end
 
 """
-    enu2xyz(lat_rad::Real, lon_rad::Real)::Array{<:Real,2}
+    enu2xyz(lat_rad::Real, lon_rad::Real)::AbstractArray{<:Real,2}
 
 Return transformation (rotation and permutation) matrix to convert coordinates
 from a topocentric (East,North,Up) frame to a topocentric ITRF aligned (X,Y,Z)
@@ -627,7 +627,7 @@ coordinate(s) for the given latitude and longitude:
 
     xyz = enu2xyz(lat, lon) * enu
 """
-function enu2xyz(lat_rad::Real, lon_rad::Real)::Array{<:Real,2}
+function enu2xyz(lat_rad::Real, lon_rad::Real)::AbstractArray{<:Real,2}
     [0 0 1
      1 0 0
      0 1 0] * ry(-lon_rad) * rx(lat_rad)
@@ -636,7 +636,7 @@ end
 """
     enu2xyz(enu::AbstractArray{<:Real},
             lat_rad::Real, lon_rad::Real
-           )::Array{<:Real}
+           )::AbstractArray{<:Real}
 
 Transform point(s) `enu` from a topocentric (East,North,Up) frame to a
 topocentric ITRF aligned (X,Y,Z) frame for topocentric origin at geodetic
@@ -646,7 +646,7 @@ latitude `lat_rad` and longitude `lon_rad` (both in radians):
 """
 function enu2xyz(enu::AbstractArray{<:Real},
                  lat_rad::Real, lon_rad::Real
-                )::Array{<:Real}
+                )::AbstractArray{<:Real}
     enu2xyz(lat_rad, lon_rad) * enu
 end
 
