@@ -555,7 +555,17 @@ Left multiplying a topocentric (East,North,Up) coordinate vector or matrix by
 the returned rotation matrix will result in the corresponding (U,V,W)
 coordinates for the given direction:
 
-    uvw = enu2uvw(az, el) * enu
+# Examples
+```jldoctest
+# East-only vector projected due east at the horizon is all `w`.
+julia> enu2uvw(π/2, 0) * [1, 0, 0] ≈ [0, 0, 1]
+true
+```
+```jldoctest
+# North-only vector projected due south at the horizon is all `-w`.
+julia> enu2uvw(π, 0) * [0, 2, 0] ≈ [0, 0, -2]
+true
+```
 """
 function enu2uvw(az_rad::Real, el_rad::Real)::AbstractArray{<:Real,2}
     [0 1 0
