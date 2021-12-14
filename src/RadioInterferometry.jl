@@ -593,6 +593,18 @@ the returned rotation matrix will result in the corresponding (U,V,W)
 coordinates for the given direction and latitude:
 
     uvw = enu2uvw(ha, dec, lat) * enu
+# Examples
+```jldoctest
+# East-only vector projected due east at the horizon is all `w`.
+julia> enu2uvw(-π/2, 0, 0) * [1, 0, 0] ≈ [0, 0, 1]
+true
+```
+```jldoctest
+# North-only vector projected due south at the horizon is all `-w`.
+# This latitude is south of the equator and the hour angle is 12 hours.
+julia> enu2uvw(π, -π/4, -π/4) * [0, 2, 0] ≈ [0, 0, -2]
+true
+```
 """
 function enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::AbstractArray{<:Real,2}
     rx(-dec_rad) * ry(-ha_rad) * rx(lat_rad)
