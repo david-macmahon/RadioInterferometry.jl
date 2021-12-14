@@ -1,10 +1,19 @@
-using RadioInterferometry
 using Test
+using Documenter
+using RadioInterferometry
+
+DocMeta.setdocmeta!(RadioInterferometry,
+                    :DocTestSetup,
+                    :(using RadioInterferometry);
+                    recursive=true)
 
 randlat() = (rand() - 0.5) * π
 randlon() = (rand() - 0.5) * 2π
 randha() = (rand() - 0.5) * 6
 randdec = randlat
+
+# Run doc tests
+doctest(RadioInterferometry, manual=false)
 
 @testset "string macros" begin
     @testset "dms_str tests" begin
