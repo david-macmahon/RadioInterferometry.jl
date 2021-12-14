@@ -72,6 +72,12 @@ Return a 3x3 rotation matrix that will rotate a right handed reference frame by
 
 # Example
 ```jldoctest
+julia> RadioInterferometry.rx(π/2) * [0, 1, 0] ≈ [0, 0, -1]
+true
+
+julia> RadioInterferometry.ry(π/2) * [1, 0, 0] ≈ [0, 0, 1]
+true
+
 julia> RadioInterferometry.rz(π/2) * [1, 0, 0] ≈ [0, -1, 0]
 true
 ```
@@ -294,12 +300,24 @@ julia> 3+sqrt(2)/10 |> rad2dmsstr(digits=6)
 "+179:59:24.667385"
 ```
 """
-deg2dmsstr(;digits=3, kwargs...) = x->deg2dmsstr(x, digits; kwargs...)
-deg2hmsstr(;digits=3, kwargs...) = x->deg2hmsstr(x, digits; kwargs...)
-ha2dmsstr( ;digits=3, kwargs...) = x->ha2dmsstr( x, digits; kwargs...)
-ha2hmsstr( ;digits=3, kwargs...) = x->ha2hmsstr( x, digits; kwargs...)
-rad2dmsstr(;digits=3, kwargs...) = x->rad2dmsstr(x, digits; kwargs...)
-rad2hmsstr(;digits=3, kwargs...) = x->rad2hmsstr(x, digits; kwargs...)
+function deg2dmsstr(;digits=3, kwargs...)
+    x->deg2dmsstr(x, digits; kwargs...)
+end,
+function deg2hmsstr(;digits=3, kwargs...)
+    x->deg2hmsstr(x, digits; kwargs...)
+end,
+function ha2dmsstr( ;digits=3, kwargs...)
+    x->ha2dmsstr( x, digits; kwargs...)
+end,
+function ha2hmsstr( ;digits=3, kwargs...)
+    x->ha2hmsstr( x, digits; kwargs...)
+end,
+function rad2dmsstr(;digits=3, kwargs...)
+    x->rad2dmsstr(x, digits; kwargs...)
+end,
+function rad2hmsstr(;digits=3, kwargs...)
+    x->rad2hmsstr(x, digits; kwargs...)
+end
 
 """
     ha2hms(h::Real, ndp::Integer=3)::Tuple{Int32, Int32, Int32, Int32, Rational{Int64}}
