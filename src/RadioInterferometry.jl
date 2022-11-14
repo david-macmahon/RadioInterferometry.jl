@@ -100,7 +100,7 @@ CMPNS = CMPS / 1e9
 """
 Speed of light in a vacuum (C) in nanoseconds/meter
 """
-CNSPM = 1e9 / CMPNS
+CNSPM = 1 / CMPNS
 """
 Speed of light in a vacuum (C) in seconds/meter
 """
