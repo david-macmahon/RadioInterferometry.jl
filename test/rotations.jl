@@ -8,9 +8,9 @@ import RadioInterferometry: rx, ry, rz
 r123 = rz(ψ)ry(θ)rx(ϕ)
 
 r123_erfa =  [
-     cos(ψ)cos(θ)   cos(ψ)sin(θ)sin(ϕ)+sin(ψ)cos(ϕ)  −cos(ψ)sin(θ)cos(ϕ)+sin(ψ)sin(ϕ)
-    −sin(ψ)cos(θ)  −sin(ψ)sin(θ)sin(ϕ)+cos(ψ)cos(ϕ)   sin(ψ)sin(θ)cos(ϕ)+cos(ψ)sin(ϕ)
-           sin(θ)                     −cos(θ)sin(ϕ)                      cos(θ)cos(ϕ)
+     cos(ψ)cos(θ)   cos(ψ)sin(θ)sin(ϕ)+sin(ψ)cos(ϕ)  -cos(ψ)sin(θ)cos(ϕ)+sin(ψ)sin(ϕ)
+    -sin(ψ)cos(θ)  -sin(ψ)sin(θ)sin(ϕ)+cos(ψ)cos(ϕ)   sin(ψ)sin(θ)cos(ϕ)+cos(ψ)sin(ϕ)
+           sin(θ)                     -cos(θ)sin(ϕ)                      cos(θ)cos(ϕ)
 ]
 
 ϕval = 2π*rand()
