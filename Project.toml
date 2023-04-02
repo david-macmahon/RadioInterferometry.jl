@@ -1,7 +1,7 @@
 name = "RadioInterferometry"
 uuid = "d7a65883-3b66-4fe4-a274-f0f417c4cddf"
 authors = ["David MacMahon <davidm@astro.berkeley.edu>"]
-version = "0.4.2"
+version = "0.5.0"
 
 [deps]
 ERFA = "17511681-8477-586a-8d98-4cfd5a1f2ec3"
@@ -9,3 +9,16 @@ Geodesy = "0ef565a4-170c-5f04-8de2-149903a85f3d"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 Rotations = "6038ab10-8711-5258-84ad-4b1120ba62dc"
+
+[weakdeps]
+Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
+
+[extensions]
+RadioInterferometrySymbolicsExt = "Symbolics"
+
+[compat]
+Symbolics = "4.3.0"
+julia = "^1.6"
+
+[extras]
+Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"

@@ -53,14 +53,21 @@ import LinearAlgebra: mul!
 import Geodesy: ECEF, ENU
 import Rotations: RotX, RotY, RotZ
 
+# For Julia < 1.9.0
+if !isdefined(Base, :get_extension)
 using Requires
-
+end
+@static if !isdefined(Base, :get_extension)
 # Add Symbolics functionality if/when it is imported.
 function __init__()
     @require Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7" begin
-        include("symbolics.jl")
+        include("../ext/RadioInterferometrySymbolicsExt.jl")
     end
 end
+end
+
+# A method is added to `signclean` if/when the Symbolics package is loaded
+function signclean end
 
 """
     rx(phi::Real)::AbstractArray{<:Real,2}

@@ -50,4 +50,6 @@ include("rotations.jl")
                               0 1 0]
 end
 
+include("extension.jl")
+
 nothing
