@@ -28,6 +28,9 @@ export ha2deg
 export rad2ha
 export ha2rad
 
+# Export RADec2Obs function
+export radec2obs
+
 export xyz2uvw
 export xyz2enu
 export enu2uvw
@@ -48,6 +51,10 @@ import ERFA.CMPS
 include("ae2hd.jl")
 include("hd2ae.jl")
 include("hd2pa.jl")
+
+# Helper function `radec2obs`
+include("radec2obs.jl")
+import .RADec2Obs: radec2obs
 
 import LinearAlgebra: mul!
 import Rotations: RotX, RotY, RotZ
