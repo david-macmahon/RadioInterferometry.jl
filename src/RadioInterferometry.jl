@@ -44,13 +44,12 @@ import ERFA.DD2R
 import ERFA.DR2D
 import ERFA.CMPS
 
-# Add some utility functions that are missing from eariler ERFA versions
+# Add some Julia (i.e. composable) implementations of ERFA utility functions.
 include("ae2hd.jl")
 include("hd2ae.jl")
 include("hd2pa.jl")
 
 import LinearAlgebra: mul!
-import Geodesy: ECEF, ENU
 import Rotations: RotX, RotY, RotZ
 
 # For Julia < 1.9.0

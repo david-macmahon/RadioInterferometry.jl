@@ -1,5 +1,3 @@
-import ERFA
-
 """
 Horizon to equatorial coordinates:  transform azimuth and altitude
 to hour angle and declination.
