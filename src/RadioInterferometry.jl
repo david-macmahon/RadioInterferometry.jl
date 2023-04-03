@@ -31,6 +31,14 @@ export ha2rad
 # Export RADec2Obs function
 export radec2obs
 
+# Export TopoUVW functions
+export hadec2uvw
+export azel2uvw
+export azza2uvw
+
+# Export GCRSUVW function
+export radec2uvw
+
 export xyz2uvw
 export xyz2enu
 export enu2uvw
@@ -55,6 +63,14 @@ include("hd2pa.jl")
 # Helper function `radec2obs`
 include("radec2obs.jl")
 import .RADec2Obs: radec2obs
+
+# Topocentric UVW transformations
+include("topouvw.jl")
+import .TopoUVW: hadec2uvw, azel2uvw, azza2uvw
+
+# GCRS UVW transformations
+include("gcrsuvw.jl")
+import .GCRSUVW: radec2uvw
 
 import LinearAlgebra: mul!
 import Rotations: RotX, RotY, RotZ
@@ -424,70 +440,11 @@ Convert `h` from hour angle to radians.
 """
 ha2rad = deg2rad ∘ ha2deg
 
-"""
-    xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real)::AbstractArray{<:Real,2}
+@deprecate xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real) hadec2uvw(ha_rad, dec_rad, lon_rad)
 
-Return transformation (rotation and permutation) matrix to convert coordinates
-from an ITRF aligned (X,Y,Z) frame to a (U,V,W) frame where U is eastward, V is
-northward, and W points to the hour angle `ha_rad` (west positive) and
-declination `dec_rad` as seen from longitude `lon_rad` (all in radians).
+@deprecate xyz2uvw(xyz, ha_rad::Real, dec_rad::Real, lon_rad::Real) hadec2uvw(ha_rad, dec_rad, lon_rad, xyz)
 
-This works by rotating the XYZ frame anticlockwise about the Z (i.e. third)
-axis by `lon_rad-ha_rad`, producing a (X',U,Z) frame, then rotating that frame
-anticlockwise about the U (i.e. second) axis by `-dec_rad`, producing an
-(W,U,V) frame which is then permuted to (U,V,W) where U is east, V is north,
-and W is in the direction of the given hour angle and declination as seen from
-the given longitude.
-
-Left multiplying an ITRF-aligned (X,Y,Z) coordinate vector or matrix by the
-returned rotation matrix will result in the corresponding (U,V,W) coordinates
-for the given direction and longitude:
-
-    uvw = xyz2uvw(ha, dec, lon) * xyz
-"""
-function xyz2uvw(ha_rad::Real, dec_rad::Real, lon_rad::Real)::AbstractArray{<:Real,2}
-    [0 1 0
-     0 0 1
-     1 0 0] * ry(-dec_rad) * rz(lon_rad-ha_rad)
-end
-
-"""
-    xyz2uvw(xyz::AbstractArray{<:Real},
-            ha_rad::Real, dec_rad::Real, lon_rad::Real
-           )::AbstractArray{<:Real}
-
-Transform point(s) `xyz` from an (X,Y,Z) ITRF aligned frame to a (U,V,W) frame
-where U is eastward, V is northward, and W points to the hour angle `ha_rad`
-(west positive) and declination `dec_rad` as seen from longitude `lon_rad` (all
-in radians):
-
-    uvw = xyz2uvw(xyz, ha, dec, lon)
-"""
-function xyz2uvw(xyz::AbstractArray{<:Real},
-                 ha_rad::Real, dec_rad::Real, lon_rad::Real
-                )::AbstractArray{<:Real}
-    xyz2uvw(ha_rad, dec_rad, lon_rad) * xyz
-end
-
-"""
-    xyz2uvw!(uvw::AbstractArray{T},
-             xyz::AbstractArray{<:Real},
-             ha_rad::Real, dec_rad::Real, lon_rad::Real
-            )::AbstractArray{T} where {T<:Real}
-
-Transform point(s) `xyz` from an (X,Y,Z) ITRF aligned frame to a (U,V,W) frame
-where U is eastward, V is northward, and W points to the hour angle `ha_rad`
-(west positive) and declination `dec_rad` as seen from longitude `lon_rad` (all
-in radians) and store result in in `uvw`:
-
-    xyz2uvw!(uvw, xyz, ha, dec, lat)
-"""
-function xyz2uvw!(uvw::AbstractArray{T},
-                  xyz::AbstractArray{<:Real},
-                  ha_rad::Real, dec_rad::Real, lon_rad::Real
-                 )::AbstractArray{T} where {T<:Real}
-    mul!(uvw, xyz2uvw(ha_rad, dec_rad, lon_rad), xyz)
-end
+@deprecate xyz2uvw!(uvw, xyz, ha_rad::Real, dec_rad::Real, lon_rad::Real) mul!(uvw, hadec2uvw(ha_rad, dec_rad, lon_rad), xyz)
 
 """
     xyz2enu(lat_rad::Real, lon_rad::Real)::AbstractArray{<:Real,2}
