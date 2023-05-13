@@ -91,27 +91,27 @@ function azel2uvw(aob_rad, eob_rad, obslla, antxyz, bls)
 end
 
 function azza2uvw(aob_rad, zob_rad, lat_rad::Real, lon_rad::Real)
-    axel2uvw(aob_rad, π/2-zob_rad, lat_rad, lon_rad)
+    azel2uvw(aob_rad, π/2-zob_rad, lat_rad, lon_rad)
 end
 
 function azza2uvw(aob_rad, zob_rad, lat_rad::Real, lon_rad::Real, xyz)
-    axel2uvw(aob_rad, π/2-zob_rad, lat_rad, lon_rad, xyz)
+    azel2uvw(aob_rad, π/2-zob_rad, lat_rad, lon_rad, xyz)
 end
 
 function azza2uvw(aob_rad, zob_rad, obslla)
-    axel2uvw(aob_rad, π/2-zob_rad, obslla)
+    azel2uvw(aob_rad, π/2-zob_rad, obslla)
 end
 
 function azza2uvw(aob_rad, zob_rad, obslla, xyz)
-    axel2uvw(aob_rad, π/2-zob_rad, obslla, xyz)
+    azel2uvw(aob_rad, π/2-zob_rad, obslla, xyz)
 end
 
 function azza2uvw(aob_rad, zob_rad, lat_rad::Real, lon_rad::Real, antxyz, bls)
-    axel2uvw(aob_rad, π/2-zob_rad, lat_rad, lon_rad, antxyz, bls)
+    azel2uvw(aob_rad, π/2-zob_rad, lat_rad, lon_rad, antxyz, bls)
 end
 
 function azza2uvw(aob_rad, zob_rad, obslla, antxyz, bls)
-    axel2uvw(aob_rad, π/2-zob_rad, obslla, antxyz, bls)
+    azel2uvw(aob_rad, π/2-zob_rad, obslla, antxyz, bls)
 end
 
 #=
