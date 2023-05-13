@@ -24,8 +24,9 @@ function radec2uvw(ra, dec, jdutc, obslla;
     # aberration whereas the latter does not.
     astrom = apco13(jdutc, jdutc2, dut1, lon, lat, alt, xp, yp, 0, 0, 0, 0)[1]
     srcvec = s2c(ra, dec)
-    ldvec = ldsun(srcvec, astrom.eh, astrom.em)
-    gcvec = ab(ldvec, astrom.v, astrom.em, astrom.bm1)
+    # The type assertions here make JET happy
+    ldvec = ldsun(srcvec, astrom.eh::Vector{Cdouble}, astrom.em::Cdouble)
+    gcvec = ab(ldvec, astrom.v::Vector{Cdouble}, astrom.em::Cdouble, astrom.bm1::Cdouble)
     ra_gcrs, dec_gcrs = c2s(gcvec)
 
     # Rotation matrix to transform GCRS frame to UVW frame in direction of
