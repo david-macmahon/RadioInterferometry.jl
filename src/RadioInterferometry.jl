@@ -181,7 +181,7 @@ optionally scaled to `units`. `units` can be `"deg"` for degrees (default),
 `"ha"` for hour angle, or `"rad"` for radians. Note that passing `"ha"` for
 units converts to degrees first, then scales to hour angle.
 """
-macro dms_str(s, u="deg")
+macro dms_str(s, u::AbstractString="deg")
     @assert u in ("deg", "ha", "rad")
     d = dms2deg(s)
 
@@ -223,7 +223,7 @@ scaled to `units`. `units` can be `"ha"` for hour angle (default), `"deg"`
 for degrees, or `"rad"` for radians. Note that passing `"deg"` for units
 converts to hour angle first, then scales to degrees.
 """
-macro hms_str(s, u="ha")
+macro hms_str(s, u::AbstractString="ha")
     @assert u in ("deg", "ha", "rad")
 
     u == "ha"  ? hms2ha(s)  :
