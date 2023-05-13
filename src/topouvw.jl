@@ -2,7 +2,8 @@ module TopoUVW
 
 export hadec2uvw, azel2uvw, azza2uvw
 
-import Rotations: RotY, RotZ
+using ERFA: ae2hd
+using Rotations: RotY, RotZ
 
 """
     hadec2uvw(hob_rad::Real, dob_rad::Real, lon_rad::Real[, xyz])
