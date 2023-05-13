@@ -78,7 +78,7 @@ function radec2obs(α, δ, jdutc, obslla;
         phpa = tc = rh = wl = 0.0
     else
         # phpa formula from ERFA.atco13 documentation
-        phpa = 1013.25 * exp(-altitude/(29.3*(273.15+tc)))
+        phpa = 1013.25 * exp(-obslla.alt/(29.3*(273.15+tc)))
         rh = 0.5
         wl = 0.21e6
     end
