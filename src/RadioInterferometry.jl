@@ -41,6 +41,8 @@ export radec2uvw
 
 export xyz2uvw
 export xyz2enu
+export ae2uvw
+export hd2uvw
 export enu2uvw
 export enu2xyz
 
@@ -509,7 +511,7 @@ function xyz2enu!(enu::AbstractArray{T},
 end
 
 """
-    enu2uvw(az_rad::Real, el_rad::Real)::AbstractArray{<:Real,2}
+    ae2uvw(az_rad::Real, el_rad::Real)::AbstractArray{<:Real,2}
 
 Return rotation matrix to convert coordinates from a topocentric
 (East,North,Up) frame to a (U,V,W) frame where U is eastward, V is northward,
@@ -528,23 +530,23 @@ coordinates for the given direction:
 # Examples
 ```jldoctest
 # East-only vector projected due east at the horizon is all `w`.
-julia> enu2uvw(π/2, 0) * [1, 0, 0] ≈ [0, 0, 1]
+julia> ae2uvw(π/2, 0) * [1, 0, 0] ≈ [0, 0, 1]
 true
 ```
 ```jldoctest
 # North-only vector projected due south at the horizon is all `-w`.
-julia> enu2uvw(π, 0) * [0, 2, 0] ≈ [0, 0, -2]
+julia> ae2uvw(π, 0) * [0, 2, 0] ≈ [0, 0, -2]
 true
 ```
 """
-function enu2uvw(az_rad::Real, el_rad::Real)::AbstractArray{<:Real,2}
+function ae2uvw(az_rad::Real, el_rad::Real)::AbstractArray{<:Real,2}
     [0 1 0
      0 0 1
      1 0 0] * ry(-el_rad) * rz(π/2-az_rad)
 end
 
 """
-    enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::AbstractArray{<:Real,2}
+    hd2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::AbstractArray{<:Real,2}
 
 Return rotation matrix to convert coordinates from a topocentric
 (East,North,Up) frame to a (U,V,W) frame where U is eastward, V is northward,
@@ -562,21 +564,21 @@ Left multiplying a topocentric (East,North,Up) coordinate vector or matrix by
 the returned rotation matrix will result in the corresponding (U,V,W)
 coordinates for the given direction and latitude:
 
-    uvw = enu2uvw(ha, dec, lat) * enu
+    uvw = hd2uvw(ha, dec, lat) * enu
 # Examples
 ```jldoctest
 # East-only vector projected due east at the horizon is all `w`.
-julia> enu2uvw(-π/2, 0, 0) * [1, 0, 0] ≈ [0, 0, 1]
+julia> hd2uvw(-π/2, 0, 0) * [1, 0, 0] ≈ [0, 0, 1]
 true
 ```
 ```jldoctest
 # North-only vector projected due south at the horizon is all `-w`.
 # This latitude is south of the equator and the hour angle is 12 hours.
-julia> enu2uvw(π, -π/4, -π/4) * [0, 2, 0] ≈ [0, 0, -2]
+julia> hd2uvw(π, -π/4, -π/4) * [0, 2, 0] ≈ [0, 0, -2]
 true
 ```
 """
-function enu2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::AbstractArray{<:Real,2}
+function hd2uvw(ha_rad::Real, dec_rad::Real, lat_rad::Real)::AbstractArray{<:Real,2}
     rx(-dec_rad) * ry(-ha_rad) * rx(lat_rad)
 end
 
@@ -595,7 +597,7 @@ frame where U is eastward, V is northward, and W points to the hour angle
 function enu2uvw(enu::AbstractArray{<:Real},
                  ha_rad::Real, dec_rad::Real, lat_rad::Real
                 )::AbstractArray{<:Real}
-    enu2uvw(ha_rad, dec_rad, lat_rad) * enu
+    hd2uvw(ha_rad, dec_rad, lat_rad) * enu
 end
 
 """
@@ -615,7 +617,7 @@ function enu2uvw!(uvw::AbstractArray{T},
                   enu::AbstractArray{<:Real},
                   ha_rad::Real, dec_rad::Real, lat_rad::Real
                  )::AbstractArray{T} where {T<:Real}
-    mul!(uvw, enu2uvw(ha_rad, dec_rad, lat_rad), enu)
+    mul!(uvw, hd2uvw(ha_rad, dec_rad, lat_rad), enu)
 end
 
 """
