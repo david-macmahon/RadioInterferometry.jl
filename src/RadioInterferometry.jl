@@ -584,6 +584,23 @@ end
 
 """
     enu2uvw(enu::AbstractArray{<:Real},
+            az_rad::Real, el_rad::Real
+           )::AbstractArray{<:Real}
+
+Transform point(s) `enu` from a topocentric (East,North,Up) frame to a (U,V,W)
+frame where U is eastward, V is northward, and W points to the azimuth `az_rad`
+(eastward from north) and elevation `el_rad` (both in radians):
+
+    uvw = enu2uvw(enu, az, el)
+"""
+function enu2uvw(enu::AbstractArray{<:Real},
+                 az_rad::Real, el_rad::Real
+                )::AbstractArray{<:Real}
+    ae2uvw(az_rad, el_rad) * enu
+end
+
+"""
+    enu2uvw(enu::AbstractArray{<:Real},
             ha_rad::Real, dec_rad::Real, lat_rad::Real
            )::AbstractArray{<:Real}
 
@@ -598,6 +615,26 @@ function enu2uvw(enu::AbstractArray{<:Real},
                  ha_rad::Real, dec_rad::Real, lat_rad::Real
                 )::AbstractArray{<:Real}
     hd2uvw(ha_rad, dec_rad, lat_rad) * enu
+end
+
+"""
+    enu2uvw!(uvw::AbstractArray{T}
+             enu::AbstractArray{<:Real},
+             az_rad::Real, el_rad::Real
+            )::AbstractArray{T} where {T<:Real}
+
+Transform point(s) `enu` from a topocentric (East,North,Up) frame to a (U,V,W)
+frame where U is eastward, V is northward, and W points to the azimuth `az_rad`
+(eastward from north) and elevation `el_rad` (both in radians) and store result
+in `uvw`:
+
+    enu2uvw!(uvw, enu, az, el)
+"""
+function enu2uvw!(uvw::AbstractArray{T},
+                  enu::AbstractArray{<:Real},
+                  az_rad::Real, el_rad::Real
+                 )::AbstractArray{T} where {T<:Real}
+    mul!(uvw, ae2uvw(az_rad, el_rad), enu)
 end
 
 """
