@@ -41,6 +41,7 @@ export radec2uvw
 
 export xyz2uvw
 export xyz2enu
+export enu2aer
 export ae2uvw
 export hd2uvw
 export enu2uvw
@@ -508,6 +509,53 @@ function xyz2enu!(enu::AbstractArray{T},
                   lat_rad::Real, lon_rad::Real
                  )::AbstractArray{T} where {T<:Real}
     mul!(enu, xyz2enu(lat_rad, lon_rad), xyz)
+end
+
+"""
+    enu2aer(enu::AbstractVector)::AbstractVector
+
+Convert a topocentric (East,North,Up) point `enu` to an (azimuth, elevation,
+radius) point.  Azimuth and elevation are in radians.
+
+# Examples
+```jldoctest
+# East-only unit vector is azimuth π/2, elevation 0, radius 1
+julia> enu2aer([1, 0, 0]) ≈ [π/2, 0, 1]
+true
+```
+```jldoctest
+# South-only unit vector is azimuth π, elevation 0, radius 1
+julia> enu2aer(0, -1, 0) ≈ [π, 0, 1]
+true
+"""
+function enu2aer(enu::AbstractVector)::AbstractVector
+    e, n, u = enu
+    az = atan(e, n)
+    el = atan(u, hypot(e, n))
+    r = hypot(e, n, u)
+    [az, el, r]
+end
+
+"""
+    enu2aer(enu::AbstractMatrix)::AbstractMatrix
+
+Convert a topocentric (East,North,Up) points in columns of `enu` to an (azimuth,
+elevation, radius) points.  Azimuth and elevation are in radians.
+
+# Examples
+```jldoctest
+# Convert east-only, north-only, up-only unit vectors to (azimuth, elevation,
+# radius).
+julia> enu2aer([1 0 0
+                0 1 0
+                0 0 1]) ≈ [π/2  0   0
+                            0   0  π/2
+                            1   1   1]
+true
+```
+"""
+function enu2aer(enu::AbstractMatrix)::AbstractMatrix
+    mapreduce(enu2aer, hcat, eachcol(enu))
 end
 
 """
