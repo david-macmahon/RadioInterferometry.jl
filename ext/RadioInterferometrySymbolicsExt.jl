@@ -19,10 +19,8 @@ to rewrite sin/cos expressions without unary minus operations inside the
 arguments to `sin` snd `cos`.
 """
 signclean_rewriter = Symbolics.Rewriters.Prewalk(Symbolics.Rewriters.Chain([
-    Symbolics.@rule         sin(-1*(~x))         =>          -sin(~x)
-    Symbolics.@rule         cos(-1*(~x))         =>           cos(~x)
-    Symbolics.@rule (~w...)*sin(-1*(~x))*(~y...) => (~w...)*(-sin(~x))*(~y...)
-    Symbolics.@rule (~w...)*cos(-1*(~x))*(~y...) => (~w...)*( cos(~x))*(~y...)
+    Symbolics.@rule       sin(-1*(~x))       =>        -sin(~x)
+    Symbolics.@rule       cos(-1*(~x))       =>         cos(~x)
 ]))
 
 """
